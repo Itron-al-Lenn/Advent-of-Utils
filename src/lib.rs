@@ -48,22 +48,8 @@ impl std::fmt::Display for Puzzle {
     }
 }
 
-    }
 
-    pub fn solve<T>(
-        &mut self,
-        part: Parts,
-        parser: fn(&input::PuzzleInput) -> T,
-        solver: fn(T) -> R,
-    ) {
-        let parsed_input = parser(&self.puzzle_input);
-        let solution = solver(parsed_input);
-        match part {
-            Parts::Part1 => self.part_1 = Some(solution),
-            Parts::Part2 => self.part_2 = Some(solution),
-        }
     }
-}
 
 }
 
@@ -121,39 +107,33 @@ impl Puzzle {
     }
 }
 
+pub struct Year {
+    year: i32,
+    pub puzzles: [Puzzle; 25],
+}
+
     }
 
+    }
+}
+
+impl Year {
+    pub fn new(year: i32) -> std::result::Result<Year, error::AocError> {
+        if year < 2015 || year > Self::get_max_year() {
+            return Err(error::AocError::WrongYear);
+        }
+        let puzzles = std::array::from_fn(|i| -> Puzzle { Puzzle::new((i + 1) as u8, year) });
+        Ok(Self { year, puzzles })
+    }
+
+    fn get_max_year() -> i32 {
+        let ets = get_ets();
+        match ets.month() {
+            12 => ets.year(),
+            _ => ets.year() - 1,
+        }
     }
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn new_day_successfull() {
-        let result = Day::new(1, 2015).expect("Test failed");
-        assert_eq!(result.day, 1);
-        assert_eq!(result.year, 2015);
-    }
-
-    #[test]
-    #[should_panic]
-    fn new_day_failed() {
-        let _wrong_day = Day::new(27, 2016).expect("This should panic: Wrong day");
-    }
-    #[test]
-    #[should_panic]
-    fn new_day_failed2() {
-        let _wrong_year = Day::new(13, 2054).expect("This should panic: Wrong year");
-    }
-    #[test]
-    fn test_puzzle_display() {
-        let puzzle = Puzzle::<i32>::new(Day::new(1, 2015).unwrap());
-        println!("{}", puzzle);
-        // This would print:
-        // Day 1 (2015)
-        // Part 1: Not solved
-        // Part 2: Not solved
-    }
-}
+mod tests {}
