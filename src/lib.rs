@@ -90,7 +90,7 @@ impl Puzzle {
         Self {
             day,
             year,
-            puzzle_input: Self::fetch_input(day, year),
+            puzzle_input: ValidInput::Invalid,
             part_1: Option::None,
             part_2: Option::None,
         }
