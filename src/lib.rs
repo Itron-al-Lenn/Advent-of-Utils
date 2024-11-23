@@ -1,13 +1,11 @@
-use std::{error::Error, fmt::Display};
 
 use chrono::{Datelike, FixedOffset};
+use error::AocError;
 
+mod error;
 mod input;
 mod parser;
 
-#[derive(Debug)]
-enum AocError {
-    WrongDate,
 }
 
 pub enum Parts {
@@ -15,15 +13,8 @@ pub enum Parts {
     Part2,
 }
 
-impl Display for AocError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            AocError::WrongDate => write!(f, "Invalid date for AoC"),
-        }
-    }
 }
 
-impl Error for AocError {}
 
 pub struct Puzzle<R> {
     day: Day,
