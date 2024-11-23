@@ -20,12 +20,12 @@ pub enum Parts {
     Part2,
 }
 
-pub enum ValidDate {
+pub enum ValidInput {
     Valid(PuzzleInput),
     Invalid,
 }
 
-trait Table {
+pub trait Table {
     fn table(&self);
     fn table_with_width(&self, part1_width: usize, part2_width: usize);
 }
@@ -33,7 +33,7 @@ trait Table {
 pub struct Puzzle {
     day: u8,
     year: i32,
-    puzzle_input: ValidDate,
+    puzzle_input: ValidInput,
     part_1: Option<String>,
     part_2: Option<String>,
 }
@@ -107,10 +107,10 @@ impl Puzzle {
         }
     }
 
-    fn fetch_input(day: u8, year: i32) -> ValidDate {
+    fn fetch_input(day: u8, year: i32) -> ValidInput {
         match day {
-            day if day <= Self::get_max_day(year) => ValidDate::Valid(PuzzleInput::new(day, year)),
-            _ => ValidDate::Invalid,
+            day if day <= Self::get_max_day(year) => ValidInput::Valid(PuzzleInput::new(day, year)),
+            _ => ValidInput::Invalid,
         }
     }
 
@@ -121,12 +121,12 @@ impl Puzzle {
         solver: fn(T) -> String,
     ) -> Result<(), AocError> {
         match self.puzzle_input {
-            ValidDate::Invalid => self.puzzle_input = Self::fetch_input(self.day, self.year),
-            ValidDate::Valid(_) => (),
+            ValidInput::Invalid => self.puzzle_input = Self::fetch_input(self.day, self.year),
+            ValidInput::Valid(_) => (),
         }
         match &self.puzzle_input {
-            ValidDate::Invalid => Err(AocError::InvalidDate),
-            ValidDate::Valid(input) => {
+            ValidInput::Invalid => Err(AocError::InvalidDate),
+            ValidInput::Valid(input) => {
                 let parsed_input = parser(input);
                 let solution = solver(parsed_input);
                 match part {
