@@ -1,3 +1,4 @@
+use std::usize;
 
 use chrono::{Datelike, FixedOffset};
 use error::AocError;
@@ -24,6 +25,10 @@ pub enum ValidDate {
     Invalid,
 }
 
+trait Table {
+    fn table(&self);
+    fn table_with_width(&self, part1_width: usize, part2_width: usize);
+}
 
 pub struct Puzzle {
     day: u8,
@@ -48,9 +53,36 @@ impl std::fmt::Display for Puzzle {
     }
 }
 
+impl Table for Puzzle {
+    fn table(&self) {
+        let part1_width = match self.part_1.as_ref() {
+            Some(solution) => solution.chars().count(),
+            None => 4,
+        };
 
+        let part2_width = match self.part_2.as_ref() {
+            Some(solution) => solution.chars().count(),
+            None => 4,
+        };
+        self.table_with_width(part1_width, part2_width)
     }
 
+    fn table_with_width(&self, part1_width: usize, part2_width: usize) {
+        let part1 = match self.part_1.as_ref() {
+            Some(solution) => solution,
+            None => &String::from("None"),
+        };
+
+        let part2 = match self.part_2.as_ref() {
+            Some(solution) => solution,
+            None => &String::from("None"),
+        };
+
+        println!(
+            "┃ {:^2} │ {:^part1_width$} │ {:^part2_width$} ┃",
+            self.day, part1, part2
+        )
+    }
 }
 
 impl Puzzle {
@@ -112,8 +144,33 @@ pub struct Year {
     pub puzzles: [Puzzle; 25],
 }
 
+impl Table for Year {
+    fn table(&self) {
+        let part1_width = self
+            .puzzles
+            .iter()
+            .map(|puzzle| puzzle.part_1.as_deref().unwrap_or("None").chars().count())
+            .max()
+            .unwrap_or(4);
+
+        let part2_width = self
+            .puzzles
+            .iter()
+            .map(|puzzle| puzzle.part_1.as_deref().unwrap_or("None").chars().count())
+            .max()
+            .unwrap_or(4);
+
+        self.table_with_width(part1_width, part2_width)
     }
 
+    fn table_with_width(&self, part1_width: usize, part2_width: usize) {
+        println!("┏━━━━━━┓");
+        println!("┃ {} ┃", self.year);
+        println!("┣━━━━━┯┺{0:━>part1_width$}━┯━{0:━>part2_width$}━┓", "");
+        for puzzle in self.puzzles.iter() {
+            puzzle.table_with_width(part1_width, part2_width);
+        }
+        println!("┗━━━━━┷━{0:━>part1_width$}━┷━{0:━>part2_width$}━┛", "");
     }
 }
 
