@@ -1,5 +1,3 @@
-use std::usize;
-
 use chrono::{Datelike, FixedOffset};
 use error::AocError;
 use input::PuzzleInput;
