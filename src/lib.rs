@@ -6,7 +6,7 @@ use input::PuzzleInput;
 
 mod error;
 mod input;
-mod parser;
+pub mod parser;
 
 fn get_ets() -> chrono::DateTime<FixedOffset> {
     chrono::DateTime::from_naive_utc_and_offset(
