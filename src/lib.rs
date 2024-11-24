@@ -77,9 +77,9 @@ impl Table for Puzzle {
         };
 
         println!(
-            "┃ {:^2} │ {:^part1_width$} │ {:^part2_width$} ┃",
+            "┃ {:>2} │ {:^part1_width$} │ {:^part2_width$} ┃",
             self.day, part1, part2
-        )
+        );
     }
 }
 
@@ -154,7 +154,7 @@ impl Table for Year {
         let part2_width = self
             .puzzles
             .iter()
-            .map(|puzzle| puzzle.part_1.as_deref().unwrap_or("None").chars().count())
+            .map(|puzzle| puzzle.part_2.as_deref().unwrap_or("None").chars().count())
             .max()
             .unwrap_or(4);
 
@@ -162,13 +162,14 @@ impl Table for Year {
     }
 
     fn table_with_width(&self, part1_width: usize, part2_width: usize) {
+        let red_part1_width = part1_width - 1;
         println!("┏━━━━━━┓");
         println!("┃ {} ┃", self.year);
-        println!("┣━━━━━┯┺{0:━>part1_width$}━┯━{0:━>part2_width$}━┓", "");
+        println!("┣━━━━┯━┻{0:━>red_part1_width$}━┯━{0:━>part2_width$}━┓", "");
         for puzzle in self.puzzles.iter() {
             puzzle.table_with_width(part1_width, part2_width);
         }
-        println!("┗━━━━━┷━{0:━>part1_width$}━┷━{0:━>part2_width$}━┛", "");
+        println!("┗━━━━┷━{0:━>part1_width$}━┷━{0:━>part2_width$}━┛", "");
     }
 }
 
