@@ -24,6 +24,11 @@ pub enum ValidInput {
     Invalid,
 }
 
+pub enum SolverOutput {
+    Str(String),
+    Int(i32),
+}
+
 pub trait Table {
     fn table(&self);
     fn table_with_width(&self, part1_widths: &Widths, part2_widths: &Widths);
@@ -222,7 +227,7 @@ impl Puzzle {
         &mut self,
         part: Parts,
         parser: fn(&input::PuzzleInput) -> T,
-        solver: fn(T) -> String,
+        solver: fn(T) -> SolverOutput,
     ) -> Result<(), AocError> {
         match self.puzzle_input {
             ValidInput::Invalid => self.puzzle_input = Self::fetch_input(self.day, self.year),
@@ -240,13 +245,19 @@ impl Puzzle {
                 let total_time = start.elapsed();
                 match part {
                     Parts::Part1 => {
-                        self.part1.solution = Some(solution);
+                        self.part1.solution = match solution {
+                            SolverOutput::Str(solution_str) => Some(solution_str),
+                            SolverOutput::Int(solution_int) => Some(solution_int.to_string()),
+                        };
                         self.part1.total_time = Some(total_time);
                         self.part1.solution_time = Some(solution_time);
                         self.part1.parse_time = Some(parse_time);
                     }
                     Parts::Part2 => {
-                        self.part2.solution = Some(solution);
+                        self.part2.solution = match solution {
+                            SolverOutput::Str(solution_str) => Some(solution_str),
+                            SolverOutput::Int(solution_int) => Some(solution_int.to_string()),
+                        };
                         self.part2.total_time = Some(total_time);
                         self.part2.solution_time = Some(solution_time);
                         self.part2.parse_time = Some(parse_time);
