@@ -387,12 +387,11 @@ mod tests {
     #[test]
     fn test_fetch_input_valid() {
         let day = 1;
-        let year = 2024;
+        let year = 2023;
         let input = Puzzle::fetch_input(day, year);
         if let ValidInput::Valid(_) = input {
-            assert!(true);
         } else {
-            assert!(false, "Expected ValidInput::Valid");
+            panic!("Expected ValidInput::Valid");
         }
     }
 
@@ -402,9 +401,8 @@ mod tests {
         let year = 2024;
         let input = Puzzle::fetch_input(day, year);
         if let ValidInput::Invalid = input {
-            assert!(true);
         } else {
-            assert!(false, "Expected ValidInput::Invalid");
+            panic!("Expected ValidInput::Invalid");
         }
     }
 
