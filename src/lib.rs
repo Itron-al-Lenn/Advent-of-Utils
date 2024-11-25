@@ -1,5 +1,4 @@
-use std::time::Duration;
-
+use ::std::time::Duration;
 use chrono::{Datelike, FixedOffset};
 use error::AocError;
 use input::PuzzleInput;
@@ -34,7 +33,7 @@ struct Solution {
     total_time: Option<Duration>,
     parse_time: Option<Duration>,
     solution_time: Option<Duration>,
-    solution: Option<i32>,
+    solution: Option<String>,
 }
 
 impl Solution {
@@ -75,7 +74,8 @@ impl Widths {
 
         let solution = solution
             .solution
-            .map(|s| s.to_string().len())
+            .as_ref()
+            .map(|s| s.len())
             .unwrap_or(0)
             .max(6);
 
@@ -144,17 +144,9 @@ impl Table for Puzzle {
     }
 
     fn table_with_width(&self, part1_width: &Widths, part2_width: &Widths) {
-        let part1_solution = self
-            .part1
-            .solution
-            .map(|s| s.to_string())
-            .unwrap_or(String::from("None"));
+        let part1_solution = self.part1.solution.clone().unwrap_or(String::from("None"));
 
-        let part2_solution = self
-            .part2
-            .solution
-            .map(|s| s.to_string())
-            .unwrap_or(String::from("None"));
+        let part2_solution = self.part2.solution.clone().unwrap_or(String::from("None"));
 
         let part1_time = self
             .part1
@@ -230,7 +222,7 @@ impl Puzzle {
         &mut self,
         part: Parts,
         parser: fn(&input::PuzzleInput) -> T,
-        solver: fn(T) -> i32,
+        solver: fn(T) -> String,
     ) -> Result<(), AocError> {
         match self.puzzle_input {
             ValidInput::Invalid => self.puzzle_input = Self::fetch_input(self.day, self.year),
