@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use chrono::{Datelike, FixedOffset};
 use error::AocError;
 use input::PuzzleInput;
@@ -25,25 +27,107 @@ pub enum ValidInput {
 
 pub trait Table {
     fn table(&self);
-    fn table_with_width(&self, part1_width: usize, part2_width: usize);
+    fn table_with_width(&self, part1_widths: &Widths, part2_widths: &Widths);
+}
+
+struct Solution {
+    total_time: Option<Duration>,
+    parse_time: Option<Duration>,
+    solution_time: Option<Duration>,
+    solution: Option<i32>,
+}
+
+impl Solution {
+    pub fn new() -> Self {
+        Self {
+            total_time: None,
+            parse_time: None,
+            solution_time: None,
+            solution: None,
+        }
+    }
+}
+
+pub struct Widths {
+    total_time: usize,
+    parse_time: usize,
+    solution_time: usize,
+    solution: usize,
+}
+
+impl Widths {
+    fn new(solution: &Solution) -> Self {
+        let total_time = solution
+            .total_time
+            .map(|t| t.as_micros().to_string().len() + 3)
+            .unwrap_or(0)
+            .max(5);
+        let parse_time = solution
+            .parse_time
+            .map(|t| t.as_micros().to_string().len() + 3)
+            .unwrap_or(0)
+            .max(5);
+        let solution_time = solution
+            .solution_time
+            .map(|t| t.as_micros().to_string().len() + 3)
+            .unwrap_or(0)
+            .max(6);
+
+        let solution = solution
+            .solution
+            .map(|s| s.to_string().len())
+            .unwrap_or(0)
+            .max(6);
+
+        Widths {
+            total_time,
+            parse_time,
+            solution_time,
+            solution,
+        }
+    }
+    fn get_max(widths: Vec<Self>) -> Self {
+        Self {
+            total_time: widths
+                .iter()
+                .map(|widths| widths.total_time)
+                .max()
+                .unwrap_or(0),
+            solution_time: widths
+                .iter()
+                .map(|widths| widths.solution_time)
+                .max()
+                .unwrap_or(0),
+            parse_time: widths
+                .iter()
+                .map(|widths| widths.parse_time)
+                .max()
+                .unwrap_or(0),
+            solution: widths
+                .iter()
+                .map(|widths| widths.solution)
+                .max()
+                .unwrap_or(0),
+        }
+    }
 }
 
 pub struct Puzzle {
     day: u8,
     year: i32,
     puzzle_input: ValidInput,
-    part_1: Option<String>,
-    part_2: Option<String>,
+    part1: Solution,
+    part2: Solution,
 }
 
 impl std::fmt::Display for Puzzle {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "Day {} ({})", self.day, self.year)?;
-        match &self.part_1 {
+        match &self.part1.solution {
             Some(solution) => writeln!(f, "Part 1: {}", solution)?,
             None => writeln!(f, "Part 1: Not solved")?,
         }
-        match &self.part_2 {
+        match &self.part2.solution {
             Some(solution) => writeln!(f, "Part 2: {}", solution)?,
             None => writeln!(f, "Part 2: Not solved")?,
         }
@@ -53,32 +137,62 @@ impl std::fmt::Display for Puzzle {
 
 impl Table for Puzzle {
     fn table(&self) {
-        let part1_width = match self.part_1.as_ref() {
-            Some(solution) => solution.chars().count(),
-            None => 4,
-        };
+        let part1_widths = Widths::new(&self.part1);
+        let part2_widths = Widths::new(&self.part2);
 
-        let part2_width = match self.part_2.as_ref() {
-            Some(solution) => solution.chars().count(),
-            None => 4,
-        };
-        self.table_with_width(part1_width, part2_width)
+        self.table_with_width(&part1_widths, &part2_widths)
     }
 
-    fn table_with_width(&self, part1_width: usize, part2_width: usize) {
-        let part1 = match self.part_1.as_ref() {
-            Some(solution) => solution,
-            None => &String::from("None"),
-        };
+    fn table_with_width(&self, part1_width: &Widths, part2_width: &Widths) {
+        let part1_solution = self
+            .part1
+            .solution
+            .map(|s| s.to_string())
+            .unwrap_or(String::from("None"));
 
-        let part2 = match self.part_2.as_ref() {
-            Some(solution) => solution,
-            None => &String::from("None"),
-        };
+        let part2_solution = self
+            .part2
+            .solution
+            .map(|s| s.to_string())
+            .unwrap_or(String::from("None"));
+
+        let part1_time = self
+            .part1
+            .total_time
+            .map(|t| t.as_micros().to_string() + " μs")
+            .unwrap_or(String::from("None"));
+
+        let part1_solution_time = self
+            .part1
+            .solution_time
+            .map(|t| t.as_micros().to_string() + " μs")
+            .unwrap_or(String::from("None"));
+
+        let part2_time = self
+            .part2
+            .total_time
+            .map(|t| t.as_micros().to_string() + " μs")
+            .unwrap_or(String::from("None"));
+
+        let part2_solution_time = self
+            .part2
+            .solution_time
+            .map(|t| t.as_micros().to_string() + " μs")
+            .unwrap_or(String::from("None"));
 
         println!(
-            "┃ {:>2} │ {:^part1_width$} │ {:^part2_width$} ┃",
-            self.day, part1, part2
+            "┃ {0:>3} │ {1:^2$} │ {3:^4$} │ {5:^6$} │ {7:^6$} │ {8:^9$} │ {10:^9$} ┃",
+            self.day,
+            part1_solution,
+            part1_width.solution,
+            part2_solution,
+            part2_width.solution,
+            part1_time,
+            part1_width.total_time.max(part2_width.total_time),
+            part2_time,
+            part1_solution_time,
+            part1_width.solution_time.max(part2_width.solution_time),
+            part2_solution_time,
         );
     }
 }
@@ -89,8 +203,8 @@ impl Puzzle {
             day,
             year,
             puzzle_input: ValidInput::Invalid,
-            part_1: Option::None,
-            part_2: Option::None,
+            part1: Solution::new(),
+            part2: Solution::new(),
         }
     }
 
@@ -116,7 +230,7 @@ impl Puzzle {
         &mut self,
         part: Parts,
         parser: fn(&input::PuzzleInput) -> T,
-        solver: fn(T) -> String,
+        solver: fn(T) -> i32,
     ) -> Result<(), AocError> {
         match self.puzzle_input {
             ValidInput::Invalid => self.puzzle_input = Self::fetch_input(self.day, self.year),
@@ -125,11 +239,26 @@ impl Puzzle {
         match &self.puzzle_input {
             ValidInput::Invalid => Err(AocError::InvalidDate),
             ValidInput::Valid(input) => {
+                let start = std::time::Instant::now();
                 let parsed_input = parser(input);
+                let parse_time = start.elapsed();
+                let start_solution = std::time::Instant::now();
                 let solution = solver(parsed_input);
+                let solution_time = start_solution.elapsed();
+                let total_time = start.elapsed();
                 match part {
-                    Parts::Part1 => self.part_1 = Some(solution),
-                    Parts::Part2 => self.part_2 = Some(solution),
+                    Parts::Part1 => {
+                        self.part1.solution = Some(solution);
+                        self.part1.total_time = Some(total_time);
+                        self.part1.solution_time = Some(solution_time);
+                        self.part1.parse_time = Some(parse_time);
+                    }
+                    Parts::Part2 => {
+                        self.part2.solution = Some(solution);
+                        self.part2.total_time = Some(total_time);
+                        self.part2.solution_time = Some(solution_time);
+                        self.part2.parse_time = Some(parse_time);
+                    }
                 }
                 Ok(())
             }
@@ -144,32 +273,65 @@ pub struct Year {
 
 impl Table for Year {
     fn table(&self) {
-        let part1_width = self
+        let part1_widths = self
             .puzzles
             .iter()
-            .map(|puzzle| puzzle.part_1.as_deref().unwrap_or("None").chars().count())
-            .max()
-            .unwrap_or(4);
+            .map(|puzzle| -> Widths { Widths::new(&puzzle.part1) })
+            .collect();
 
-        let part2_width = self
+        let part2_widths = self
             .puzzles
             .iter()
-            .map(|puzzle| puzzle.part_2.as_deref().unwrap_or("None").chars().count())
-            .max()
-            .unwrap_or(4);
+            .map(|puzzle| -> Widths { Widths::new(&puzzle.part2) })
+            .collect();
 
-        self.table_with_width(part1_width, part2_width)
+        self.table_with_width(
+            &Widths::get_max(part1_widths),
+            &Widths::get_max(part2_widths),
+        )
     }
 
-    fn table_with_width(&self, part1_width: usize, part2_width: usize) {
-        let red_part1_width = part1_width - 1;
+    fn table_with_width(&self, part1_width: &Widths, part2_width: &Widths) {
         println!("┏━━━━━━┓");
         println!("┃ {} ┃", self.year);
-        println!("┣━━━━┯━┻{0:━>red_part1_width$}━┯━{0:━>part2_width$}━┓", "");
+        println!(
+            "┣━━━━━┳┻{0:━>1$}━┳━{0:━>2$}━┳━{0:━>3$}━━━{0:━>3$}━┳━{0:━>4$}━━━{0:━>4$}━┓",
+            "",
+            part1_width.solution,
+            part2_width.solution,
+            part1_width.total_time.max(part2_width.total_time),
+            part1_width.solution_time.max(part2_width.solution_time),
+        );
+        println!(
+            "┃ Day ┃ {0:^1$} ┃ {2:^3$} ┃ {4:^5$} ┃ {6:^7$} ┃",
+            "Part 1",
+            part1_width.solution,
+            "Part 2",
+            part2_width.solution,
+            "Total Time",
+            2 * part1_width.total_time.max(part2_width.total_time) + 3,
+            "Solution Time",
+            2 * part1_width.solution_time.max(part2_width.solution_time) + 3,
+        );
+        println!(
+            "┣━━━━━╇━{0:━>1$}━╇━{0:━>2$}━╇━{0:━>3$}━┯━{0:━>3$}━╇━{0:━>4$}━┯━{0:━>4$}━┫",
+            "",
+            part1_width.solution,
+            part2_width.solution,
+            part1_width.total_time.max(part2_width.total_time),
+            part1_width.solution_time.max(part2_width.solution_time),
+        );
         for puzzle in self.puzzles.iter() {
             puzzle.table_with_width(part1_width, part2_width);
         }
-        println!("┗━━━━┷━{0:━>part1_width$}━┷━{0:━>part2_width$}━┛", "");
+        println!(
+            "┗━━━━━┷━{0:━>1$}━┷━{0:━>2$}━┷━{0:━>3$}━┷━{0:━>3$}━┷━{0:━>4$}━┷━{0:━>4$}━┛",
+            "",
+            part1_width.solution,
+            part2_width.solution,
+            part1_width.total_time.max(part2_width.total_time),
+            part1_width.solution_time.max(part2_width.solution_time),
+        );
     }
 }
 
