@@ -354,4 +354,80 @@ impl Year {
 }
 
 #[cfg(test)]
-mod tests {}
+mod tests {
+    use super::*;
+    use chrono::FixedOffset;
+
+    #[test]
+    fn test_get_ets() {
+        let ets = get_ets();
+        let fixed_offset = FixedOffset::west_opt(5 * 3600).unwrap();
+        assert_eq!(ets.offset(), &fixed_offset);
+    }
+
+    #[test]
+    fn test_solution_new() {
+        let solution = Solution::new();
+        assert!(solution.total_time.is_none());
+        assert!(solution.parse_time.is_none());
+        assert!(solution.solution_time.is_none());
+        assert!(solution.solution.is_none());
+    }
+
+    #[test]
+    fn test_widths_new() {
+        let solution = Solution::new();
+        let widths = Widths::new(&solution);
+        assert_eq!(widths.total_time, 5);
+        assert_eq!(widths.parse_time, 5);
+        assert_eq!(widths.solution_time, 6);
+        assert_eq!(widths.solution, 6);
+    }
+
+    #[test]
+    fn test_fetch_input_valid() {
+        let day = 1;
+        let year = 2024;
+        let input = Puzzle::fetch_input(day, year);
+        if let ValidInput::Valid(_) = input {
+            assert!(true);
+        } else {
+            assert!(false, "Expected ValidInput::Valid");
+        }
+    }
+
+    #[test]
+    fn test_fetch_input_invalid() {
+        let day = 26;
+        let year = 2024;
+        let input = Puzzle::fetch_input(day, year);
+        if let ValidInput::Invalid = input {
+            assert!(true);
+        } else {
+            assert!(false, "Expected ValidInput::Invalid");
+        }
+    }
+
+    #[test]
+    fn test_puzzle_new() {
+        let puzzle = Puzzle::new(1, 2024);
+        assert_eq!(puzzle.day, 1);
+        assert_eq!(puzzle.year, 2024);
+        assert!(matches!(puzzle.puzzle_input, ValidInput::Invalid));
+        assert!(puzzle.part1.solution.is_none());
+        assert!(puzzle.part2.solution.is_none());
+    }
+
+    #[test]
+    fn test_year_new() {
+        let year = Year::new(2023).unwrap();
+        assert_eq!(year.year, 2023);
+        assert_eq!(year.puzzles.len(), 25);
+    }
+
+    #[test]
+    fn test_year_new_invalid_year() {
+        let year = Year::new(2014);
+        assert!(year.is_err());
+    }
+}
