@@ -1,8 +1,10 @@
-[package]
-name = "advent-of-utils"
-version = "0.1.0"
-edition = "2021"
+[workspace]
+members = [
+  "aou-cli",
+  "aou-core",
+  "aou-lib",
+  # "examples/day01",
+  # "examples/template",
+]
 
-[dependencies]
-chrono = "0.4.38"
-reqwest = { version = "0.12.9", features = ["cookies", "blocking"] }
+[workspace.dependencies]

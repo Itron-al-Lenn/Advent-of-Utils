@@ -1,11 +1,11 @@
+mod error;
+mod input;
+pub mod parser;
+
 use ::std::time::Duration;
 use chrono::{Datelike, FixedOffset};
 use error::AocError;
 use input::PuzzleInput;
-
-mod error;
-mod input;
-pub mod parser;
 
 fn get_ets() -> chrono::DateTime<FixedOffset> {
     chrono::DateTime::from_naive_utc_and_offset(
@@ -295,10 +295,8 @@ impl Table for Year {
     }
 
     fn table_with_width(&self, part1_width: &Widths, part2_width: &Widths) {
-        println!("┏━━━━━━┓");
-        println!("┃ {} ┃", self.year);
         println!(
-            "┣━━━━━┳┻{0:━>1$}━┳━{0:━>2$}━┳━{0:━>3$}━━━{0:━>3$}━┳━{0:━>4$}━━━{0:━>4$}━┓",
+            "┏━━━━━┳━{0:━>1$}━┳━{0:━>2$}━┳━{0:━>3$}━━━{0:━>3$}━┳━{0:━>4$}━━━{0:━>4$}━┓",
             "",
             part1_width.solution,
             part2_width.solution,
@@ -328,12 +326,84 @@ impl Table for Year {
             puzzle.table_with_width(part1_width, part2_width);
         }
         println!(
-            "┗━━━━━┷━{0:━>1$}━┷━{0:━>2$}━┷━{0:━>3$}━┷━{0:━>3$}━┷━{0:━>4$}━┷━{0:━>4$}━┛",
+            "┣━━━━━┷━{0:━>1$}━┷━{0:━>2$}━╈━{0:━>3$}━┿━{0:━>3$}━╈━{0:━>4$}━┿━{0:━>4$}━┫",
             "",
             part1_width.solution,
             part2_width.solution,
             part1_width.total_time.max(part2_width.total_time),
             part1_width.solution_time.max(part2_width.solution_time),
+        );
+
+        let total_time_part1: u128 = self
+            .puzzles
+            .iter()
+            .map(|puzzle| puzzle.part1.total_time.map(|d| d.as_micros()).unwrap_or(0))
+            .sum();
+        let total_time_part2: u128 = self
+            .puzzles
+            .iter()
+            .map(|puzzle| puzzle.part2.total_time.map(|d| d.as_micros()).unwrap_or(0))
+            .sum();
+        let total_time = total_time_part1 + total_time_part2;
+
+        let solution_time_part1: u128 = self
+            .puzzles
+            .iter()
+            .map(|puzzle| {
+                puzzle
+                    .part1
+                    .solution_time
+                    .map(|d| d.as_micros())
+                    .unwrap_or(0)
+            })
+            .sum();
+        let solution_time_part2: u128 = self
+            .puzzles
+            .iter()
+            .map(|puzzle| {
+                puzzle
+                    .part2
+                    .solution_time
+                    .map(|d| d.as_micros())
+                    .unwrap_or(0)
+            })
+            .sum();
+        let solution_time = solution_time_part1 + solution_time_part2;
+
+        println!(
+            "┃{0:>1$}┃ {3:^2$} │ {4:^2$} ┃ {6:^5$} │ {7:^5$} ┃",
+            "",
+            part1_width.solution + part2_width.solution + 11,
+            part1_width.total_time.max(part2_width.total_time),
+            (total_time_part1 / 1000).to_string() + " ms",
+            (total_time_part2 / 1000).to_string() + " ms",
+            part1_width.solution_time.max(part2_width.solution_time),
+            (solution_time_part1 / 1000).to_string() + " ms",
+            (solution_time_part2 / 1000).to_string() + " ms",
+        );
+        println!(
+            "┃{4:^1$}┣━{0:━^2$}━┷━{0:━^2$}━╋━{0:━>3$}━┷━{0:━^3$}━┫",
+            "",
+            part1_width.solution + part2_width.solution + 11,
+            part1_width.total_time.max(part2_width.total_time),
+            part1_width.solution_time.max(part2_width.solution_time),
+            "Year: ".to_owned() + &self.year.to_string(),
+        );
+        println!(
+            "┃{0:>1$}┃ {3:^2$} ┃ {5:^4$} ┃",
+            "",
+            part1_width.solution + part2_width.solution + 11,
+            2 * part1_width.total_time.max(part2_width.total_time) + 3,
+            (total_time / 1000).to_string() + " ms",
+            2 * part1_width.solution_time.max(part2_width.solution_time) + 3,
+            (solution_time / 1000).to_string() + " ms",
+        );
+        println!(
+            "┗{0:━>1$}┻━{0:━^2$}━┻━{0:━^3$}━┛",
+            "",
+            part1_width.solution + part2_width.solution + 11,
+            2 * part1_width.total_time.max(part2_width.total_time) + 3,
+            2 * part1_width.solution_time.max(part2_width.solution_time) + 3,
         );
     }
 }
@@ -353,6 +423,38 @@ impl Year {
             12 => ets.year(),
             _ => ets.year() - 1,
         }
+    }
+}
+
+pub struct Test {
+    input: PuzzleInput,
+    result: Option<String>,
+}
+
+impl Test {
+    pub fn new(input: String) -> Self {
+        Self {
+            input: PuzzleInput(input),
+            result: None,
+        }
+    }
+
+    pub fn test<T>(&mut self, parser: fn(&input::PuzzleInput) -> T, solver: fn(T) -> SolverOutput) {
+        let parsed_input = parser(&self.input);
+        let result = solver(parsed_input);
+
+        match result {
+            SolverOutput::Int(i) => self.result = Some(i.to_string()),
+            SolverOutput::Str(s) => self.result = Some(s),
+        }
+
+        println!(
+            "{} -> {}",
+            self.input.0,
+            self.result
+                .clone()
+                .unwrap_or("Test returned no result".to_string())
+        )
     }
 }
 
