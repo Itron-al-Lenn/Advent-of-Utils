@@ -1,10 +1,21 @@
+[package]
+name = "advent-of-utils"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio.workspace = true
+chrono = "0.4.38"
+reqwest = { version = "0.12.9", features = ["cookies", "blocking"] }
+
 [workspace]
+resolver = "2"
 members = [
   "aou-cli",
-  "aou-core",
   "aou-lib",
   # "examples/day01",
   # "examples/template",
 ]
 
 [workspace.dependencies]
+tokio = { version = "1.41.1", features = ["full"] }
