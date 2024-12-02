@@ -144,12 +144,9 @@ impl PuzzleInput {
                             ))
                         }
                     };
-                    Ok(Self {
-                        test_result,
-                        input: { input.splitn(2, "\n").nth(2).unwrap_or("").to_string() },
-                    })
+                    Ok(Self { test_result, input })
                 }
-                Err(e) => Err(AocError::FetchingFailed(e.to_string())),
+                Err(e) => Err(AocError::FetchingFailed(e.to_string() + &input_path)),
             },
         }
     }

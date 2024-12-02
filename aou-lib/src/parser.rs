@@ -22,7 +22,19 @@ pub fn by_line_and_char_as_int(input: &PuzzleInput) -> Vec<Vec<i32>> {
         .lines()
         .map(|line| -> Vec<i32> {
             line.chars()
-                .map(|c| -> i32 { c.to_digit(10).unwrap_or(0).try_into().unwrap_or(0) })
+                .filter_map(|c| c.to_digit(10).and_then(|u| u.try_into().ok()))
+                .collect()
+        })
+        .collect()
+}
+
+pub fn by_line_and_word_as_int(input: &PuzzleInput) -> Vec<Vec<i32>> {
+    input
+        .input
+        .lines()
+        .map(|line| -> Vec<i32> {
+            line.split_whitespace()
+                .filter_map(|s| s.parse::<i32>().ok())
                 .collect()
         })
         .collect()
