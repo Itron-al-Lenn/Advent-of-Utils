@@ -1,6 +1,7 @@
 use advent_of_utils::{
     error::{AocError, SolutionError},
     types::{AocResult, PuzzleInput},
+    Parts,
 };
 use std::time::Instant;
 use tokio::task::JoinSet;
@@ -33,6 +34,7 @@ pub(crate) async fn run_solutions(
             schedule_day_tasks(
                 &mut tasks,
                 day,
+                &config.part,
                 solver,
                 year,
                 test_mode,
@@ -44,6 +46,7 @@ pub(crate) async fn run_solutions(
                 schedule_day_tasks(
                     &mut tasks,
                     day,
+                    &config.part,
                     solver,
                     year,
                     test_mode,
@@ -59,15 +62,24 @@ pub(crate) async fn run_solutions(
 fn schedule_day_tasks(
     tasks: &mut JoinSet<Result<(AocResult, ExecutionMetrics), AocError>>,
     day: u8,
+    part: &Option<Parts>,
     solver: &dyn advent_of_utils::Solution,
     year: i32,
     test_mode: bool,
     input_dir: String,
 ) {
+    let part = match part {
+        Some(part) => part.clone() as u8,
+        None => 0,
+    };
     // Schedule part 1
-    schedule_part_task(tasks, day, 1, solver, year, test_mode, input_dir.clone());
+    if part != 2 {
+        schedule_part_task(tasks, day, 1, solver, year, test_mode, input_dir.clone());
+    }
     // Schedule part 2
-    schedule_part_task(tasks, day, 2, solver, year, test_mode, input_dir);
+    if part != 1 {
+        schedule_part_task(tasks, day, 2, solver, year, test_mode, input_dir);
+    }
 }
 
 fn schedule_part_task(
