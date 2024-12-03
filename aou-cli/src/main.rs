@@ -1,9 +1,10 @@
+mod config;
 mod loader;
 mod runner;
 
 use advent_of_utils::Parts;
 use clap::Parser;
-use runner::Config;
+use config::Config;
 use std::process;
 
 #[derive(Parser)]
@@ -32,23 +33,22 @@ struct Cli {
 async fn main() {
     let cli = Cli::parse();
 
-    let config = Config {
-        year: cli.year,
-        day: cli.day,
-        part: match cli.part {
-            Some(num) => match Parts::new(num) {
-                Ok(part) => Some(part),
-                Err(error) => {
-                    println!("Error: {}", error);
-                    process::exit(1);
-                }
-            },
-            None => None,
-        },
-        workspace_dir: cli.workspace_dir + "/target/release",
-        test_mode: cli.test,
-        input_dir: cli.input_dir,
-    };
+    let part = cli.part.map(|num| match Parts::new(num) {
+        Ok(part) => part,
+        Err(error) => {
+            println!("Error: {}", error);
+            process::exit(1);
+        }
+    });
+
+    let config = Config::new(
+        cli.year,
+        cli.day,
+        part,
+        cli.test,
+        cli.input_dir,
+        cli.workspace_dir,
+    );
 
     if let Err(error) = runner::run(&config).await {
         println!("Error: {}", error);
