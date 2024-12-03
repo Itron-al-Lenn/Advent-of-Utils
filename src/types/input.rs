@@ -1,4 +1,7 @@
-use crate::{error::AocError, input::fetch_input};
+use crate::{
+    error::{AocError, InputError},
+    input::fetch_input,
+};
 use std::path::{Path, PathBuf};
 
 pub struct PuzzleInput {
@@ -34,16 +37,24 @@ impl PuzzleInput {
                 }),
                 Err(err) if err.kind() == std::io::ErrorKind::NotFound => {
                     match fetch_input(year, day) {
-                        Err(e) => Err(AocError::FetchingFailed(e.to_string())),
+                        Err(e) => Err(AocError::Input(e)),
                         Ok(input) => {
                             if let Some(parent) = Path::new(&source_path).parent() {
                                 if let Err(e) = std::fs::create_dir_all(parent) {
-                                    return Err(AocError::FetchingFailed(e.to_string()));
+                                    return Err(AocError::Input(InputError::FileSaveError {
+                                        path: source_path,
+                                        reason: "Failed creating dir.".to_string(),
+                                        source: Some(e),
+                                    }));
                                 };
                             }
 
                             if let Err(e) = std::fs::write(&source_path, &input) {
-                                return Err(AocError::FetchingFailed(e.to_string()));
+                                return Err(AocError::Input(InputError::FileSaveError {
+                                    path: source_path,
+                                    reason: "Failed writing file.".to_string(),
+                                    source: Some(e),
+                                }));
                             }
                             Ok(Self {
                                 input,
@@ -57,7 +68,11 @@ impl PuzzleInput {
                         }
                     }
                 }
-                Err(e) => Err(AocError::FetchingFailed(e.to_string())),
+                Err(e) => Err(AocError::Input(InputError::FileReadError {
+                    path: source_path,
+                    reason: "Failed reading file.".to_string(),
+                    source: Some(e),
+                })),
             },
 
             true => match std::fs::read_to_string(&source_path) {
@@ -70,7 +85,11 @@ impl PuzzleInput {
                         source_path,
                     },
                 }),
-                Err(e) => Err(AocError::FetchingFailed(e.to_string())),
+                Err(e) => Err(AocError::Input(InputError::FileReadError {
+                    path: source_path,
+                    reason: "Failed reading file.".to_string(),
+                    source: Some(e),
+                })),
             },
         }
     }

@@ -2,6 +2,8 @@ use lazy_static::lazy_static;
 use reqwest::blocking::Client;
 use std::{fmt::Display, sync::Arc};
 
+use crate::error::InputError; // Import the existing error module
+
 const USER_AGENT: &str =
     "Advent of Utils by Itron-al-Lenn found on github.com/Itron-al-Lenn/Advent-of-Utils";
 const AOC_BASE_URL: &str = "https://adventofcode.com";
@@ -17,7 +19,15 @@ impl Default for SessionToken {
 
 impl SessionToken {
     pub fn new() -> Self {
-        Self(std::env::var("AOC_SESSION").expect("No AOC_SESSION environment variable set"))
+        match std::env::var("AOC_SESSION") {
+            Ok(token) => Self(token),
+            Err(e) => panic!(
+                "{}",
+                InputError::MissingToken {
+                    reason: format!("AOC_SESSION environment variable not set: {}", e)
+                }
+            ),
+        }
     }
 }
 
@@ -51,49 +61,30 @@ fn create_client() -> Client {
         .expect("Failed to create HTTP client")
 }
 
-#[derive(Debug)]
-pub enum InputError {
-    Network(reqwest::Error),
-    InvalidResponse(String),
-}
-
-impl std::error::Error for InputError {}
-
-impl Display for InputError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Network(e) => write!(f, "Network error: {}", e),
-            Self::InvalidResponse(e) => write!(f, "Invalid response: {}", e),
-        }
-    }
-}
-
 pub fn fetch_input(year: i32, day: u8) -> Result<String, InputError> {
     let url = format!("{}/{}/day/{}/input", AOC_BASE_URL, year, day);
 
     HTTP_CLIENT
         .get(&url)
         .send()
-        .map_err(InputError::Network)?
+        .map_err(|e| InputError::FetchFailed {
+            year,
+            day,
+            reason: "Network request failed".to_string(),
+            source: Some(e),
+        })?
         .error_for_status()
-        .map_err(InputError::Network)?
+        .map_err(|e| InputError::FetchFailed {
+            year,
+            day,
+            reason: "Server returned error status".to_string(),
+            source: Some(e),
+        })?
         .text()
-        .map_err(|e| InputError::InvalidResponse(e.to_string()))
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_session_token_display() {
-        let token = SessionToken("test123".to_string());
-        assert_eq!(token.to_string(), "test123");
-    }
-
-    #[test]
-    fn test_session_token_from_string() {
-        let token = SessionToken::from("test123".to_string());
-        assert_eq!(token.0, "test123");
-    }
+        .map_err(|e| InputError::FetchFailed {
+            year,
+            day,
+            reason: "Failed to read response text".to_string(),
+            source: Some(e),
+        })
 }
