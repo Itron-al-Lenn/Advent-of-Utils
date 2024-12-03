@@ -1,5 +1,6 @@
 use advent_of_utils::{
     error::{AocError, SolutionError},
+    time::AocTime,
     types::{AocResult, PuzzleInput},
     Parts,
 };
@@ -42,7 +43,11 @@ pub(crate) async fn run_solutions(
             );
         }
         None => {
-            for (day, solver) in solutions.iter() {
+            let time = AocTime::now();
+            for (day, solver) in solutions
+                .iter()
+                .filter(|(day, _)| time.is_puzzle_available(year, *day))
+            {
                 schedule_day_tasks(
                     &mut tasks,
                     day,
