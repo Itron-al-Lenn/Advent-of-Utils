@@ -3,42 +3,31 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum InputError {
-    #[error("Failed to read input file: {path}")]
-    FileNotFound {
-        path: PathBuf,
-        #[source]
-        source: std::io::Error,
-    },
+    #[error("Missing session token: {reason}")]
+    MissingToken { reason: String },
 
-    #[error("Failed to fetch input: {msg}")]
+    #[error("Failed to fetch input for year {year} day {day}: {reason}")]
     FetchFailed {
-        msg: String,
+        year: i32,
+        day: u8,
+        reason: String,
         #[source]
         source: Option<reqwest::Error>,
     },
 
-    #[error("Input parsing failed on line {line:?}: {msg}")]
-    ParseError { msg: String, line: Option<usize> },
+    #[error("Failed to read input file {path}: {reason}")]
+    FileReadError {
+        path: PathBuf,
+        reason: String,
+        #[source]
+        source: Option<std::io::Error>,
+    },
 
-    #[error("Missing session token for input fetching")]
-    MissingToken,
-}
-
-impl InputError {
-    pub fn parse_error(msg: impl Into<String>) -> Self {
-        Self::ParseError {
-            msg: msg.into(),
-            line: None,
-        }
-    }
-
-    pub fn with_line(self, line_number: usize) -> Self {
-        match self {
-            Self::ParseError { msg, .. } => Self::ParseError {
-                msg,
-                line: Some(line_number),
-            },
-            other => other,
-        }
-    }
+    #[error("Failed to save input to {path}: {reason}")]
+    FileSaveError {
+        path: PathBuf,
+        reason: String,
+        #[source]
+        source: Option<std::io::Error>,
+    },
 }

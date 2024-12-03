@@ -3,19 +3,27 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum LoadingError {
-    #[error("No solutions found for year {year}")]
-    NoSolutionsFound { year: i32 },
-
-    #[error("Failed to load solution library: {path}")]
-    LibraryLoadFailed {
-        path: PathBuf,
+    #[error("No solution library found for year {year}")]
+    LibraryNotFound {
+        year: i32,
+        search_path: PathBuf,
         #[source]
-        source: libloading::Error,
+        source: Option<std::io::Error>,
     },
 
-    #[error("Invalid solution library: {msg}")]
-    InvalidLibrary { msg: String, path: PathBuf },
+    #[error("Multiple solution libraries found: {}", .paths.iter().map(|p| p.display().to_string()).collect::<Vec<_>>().join(", "))]
+    AmbiguousLibraries { paths: Vec<PathBuf> },
 
-    #[error("Solution for day {day} not found")]
-    SolutionNotFound { day: u8 },
+    #[error("Failed to load solution library: {reason}")]
+    LibraryLoadFailed {
+        reason: String,
+        #[source]
+        source: Option<libloading::Error>,
+    },
+
+    #[error("No solutions found in library for year {year}")]
+    NoSolutions { year: i32 },
+
+    #[error("Invalid solution library: {reason}")]
+    InvalidLibrary { reason: String },
 }
