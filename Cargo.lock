@@ -95,7 +95,7 @@ dependencies = [
 
 [[package]]
 name = "aou-cli"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "advent-of-utils",
  "clap",
