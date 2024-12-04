@@ -23,6 +23,7 @@ impl PuzzleInput {
                     if err.kind() == std::io::ErrorKind::NotFound
                         && AocTime::now().is_puzzle_available(year, day) =>
                 {
+                    println!("Fetch input online...");
                     match fetch_input(year, day) {
                         Err(e) => Err(AocError::Input(e)),
                         Ok(input) => {

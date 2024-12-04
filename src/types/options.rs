@@ -1,6 +1,7 @@
 use super::Debug;
 use super::Display;
 
+#[derive(Clone)]
 pub enum AocOption {
     Str(String),
     Int(i32),

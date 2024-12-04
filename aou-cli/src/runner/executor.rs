@@ -1,7 +1,7 @@
 use advent_of_utils::{
     error::{AocError, SolutionError},
     time::AocTime,
-    types::{AocResult, PuzzleInput},
+    types::{AocResult, AocYear, PuzzleInput},
     Parts,
 };
 use std::time::Instant;
@@ -9,20 +9,11 @@ use tokio::task::JoinSet;
 
 use crate::{config::Config, loader};
 
-pub struct ExecutionResult {
-    pub results: Vec<(AocResult, ExecutionMetrics)>,
-}
-
-pub struct ExecutionMetrics {
-    pub total_time: std::time::Duration,
-    pub solution_time: std::time::Duration,
-}
-
 pub(crate) async fn run_solutions(
     config: &Config,
     solutions: &loader::Solutions,
-) -> Result<ExecutionResult, AocError> {
-    let mut tasks: JoinSet<Result<(AocResult, ExecutionMetrics), AocError>> = JoinSet::new();
+) -> Result<AocYear, AocError> {
+    let mut tasks: JoinSet<Result<AocResult, AocError>> = JoinSet::new();
     let year = config.year;
     let test_mode = config.test_mode;
 
@@ -65,7 +56,7 @@ pub(crate) async fn run_solutions(
 }
 
 fn schedule_day_tasks(
-    tasks: &mut JoinSet<Result<(AocResult, ExecutionMetrics), AocError>>,
+    tasks: &mut JoinSet<Result<AocResult, AocError>>,
     day: u8,
     part: &Option<Parts>,
     solver: &dyn advent_of_utils::Solution,
@@ -88,7 +79,7 @@ fn schedule_day_tasks(
 }
 
 fn schedule_part_task(
-    tasks: &mut JoinSet<Result<(AocResult, ExecutionMetrics), AocError>>,
+    tasks: &mut JoinSet<Result<AocResult, AocError>>,
     day: u8,
     part: u8,
     solver: &dyn advent_of_utils::Solution,
@@ -97,47 +88,40 @@ fn schedule_part_task(
     input_dir: String,
 ) {
     let solver = solver.clone_box();
-
     tasks.spawn_blocking(move || {
         let total_start = Instant::now();
 
         let input = PuzzleInput::new(year, day, &input_dir, test_mode)?;
 
-        let solution_start = Instant::now();
+        // let solution_start = Instant::now();
         let result = if part == 1 {
             solver.part1(input)
         } else {
             solver.part2(input)
         };
-        let solution_time = solution_start.elapsed();
-        let total_time = total_start.elapsed();
+        // let time = solution_start.elapsed();
+        let time = total_start.elapsed();
 
-        Ok((
-            AocResult::new(day, part, result),
-            ExecutionMetrics {
-                total_time,
-                solution_time,
-            },
-        ))
+        Ok(AocResult::new(day, part, result, time))
     });
 }
 
 async fn collect_results(
-    mut tasks: JoinSet<Result<(AocResult, ExecutionMetrics), AocError>>,
-) -> Result<ExecutionResult, AocError> {
+    mut tasks: JoinSet<Result<AocResult, AocError>>,
+) -> Result<AocYear, AocError> {
     let mut results = Vec::new();
 
     while let Some(result) = tasks.join_next().await {
         match result {
-            Ok(Ok((aoc_result, metrics))) => {
-                results.push((aoc_result, metrics));
+            Ok(Ok(aoc_result)) => {
+                results.push(aoc_result);
             }
             Ok(Err(e)) => return Err(e),
             Err(_) => return Err(AocError::Solution(SolutionError::NotImplemented)),
         }
     }
 
-    results.sort_by_key(|(r, _)| (r.day(), r.part() as u8));
+    results.sort_by_key(|r| (r.day(), r.part() as u8));
 
-    Ok(ExecutionResult { results })
+    Ok(AocYear::from_vec(results))
 }

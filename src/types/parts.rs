@@ -1,8 +1,7 @@
-use super::Debug;
 use super::Display;
 use crate::error::AocError;
 
-#[derive(Debug, Clone)]
+#[derive(Clone, Hash, Eq, PartialEq)]
 pub enum Parts {
     Part1 = 1,
     Part2 = 2,
