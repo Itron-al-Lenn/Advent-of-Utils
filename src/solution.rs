@@ -5,8 +5,12 @@ pub trait CloneBox {
 }
 
 pub trait Solution: Send + Sync + CloneBox {
-    fn part1(&self, input: PuzzleInput) -> AocOption;
-    fn part2(&self, input: PuzzleInput) -> AocOption;
+    fn part1(&self, _input: PuzzleInput) -> AocOption {
+        AocOption::None
+    }
+    fn part2(&self, _input: PuzzleInput) -> AocOption {
+        AocOption::None
+    }
 }
 
 impl<T> CloneBox for T
