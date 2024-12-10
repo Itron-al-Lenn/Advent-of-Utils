@@ -30,7 +30,7 @@ impl AocResult {
         self.day
     }
     pub fn part(&self) -> Parts {
-        self.part.clone()
+        self.part
     }
     pub fn result(&self) -> &AocOption {
         &self.result

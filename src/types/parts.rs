@@ -1,7 +1,7 @@
 use super::Display;
 use crate::error::AocError;
 
-#[derive(Clone, Hash, Eq, PartialEq)]
+#[derive(Clone, Copy, Hash, Eq, PartialEq)]
 pub enum Parts {
     Part1 = 1,
     Part2 = 2,
@@ -33,6 +33,6 @@ impl Parts {
         }
     }
     pub fn as_number(&self) -> u8 {
-        self.clone() as u8
+        *self as u8
     }
 }

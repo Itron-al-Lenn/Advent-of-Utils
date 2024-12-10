@@ -7,7 +7,10 @@ use advent_of_utils::{
 use std::time::Instant;
 use tokio::task::JoinSet;
 
-use crate::{config::Config, loader};
+use crate::{
+    config::{self, Config},
+    loader,
+};
 
 pub(crate) async fn run_solutions(
     config: &Config,
@@ -15,7 +18,6 @@ pub(crate) async fn run_solutions(
 ) -> Result<AocYear, AocError> {
     let mut tasks: JoinSet<Result<AocResult, AocError>> = JoinSet::new();
     let year = config.year;
-    let test_mode = config.test_mode;
 
     match config.day {
         Some(day) => {
@@ -23,15 +25,7 @@ pub(crate) async fn run_solutions(
                 .get(day)
                 .ok_or(AocError::Solution(SolutionError::NotImplemented))?;
 
-            schedule_day_tasks(
-                &mut tasks,
-                day,
-                &config.part,
-                solver,
-                year,
-                test_mode,
-                config.input_dir.clone(),
-            );
+            schedule_day_tasks(&mut tasks, solver, day, config);
         }
         None => {
             let time = AocTime::now();
@@ -39,15 +33,7 @@ pub(crate) async fn run_solutions(
                 .iter()
                 .filter(|(day, _)| time.is_puzzle_available(year, *day))
             {
-                schedule_day_tasks(
-                    &mut tasks,
-                    day,
-                    &config.part,
-                    solver,
-                    year,
-                    test_mode,
-                    config.input_dir.clone(),
-                );
+                schedule_day_tasks(&mut tasks, solver, day, config);
             }
         }
     }
@@ -57,50 +43,46 @@ pub(crate) async fn run_solutions(
 
 fn schedule_day_tasks(
     tasks: &mut JoinSet<Result<AocResult, AocError>>,
-    day: u8,
-    part: &Option<Parts>,
     solver: &dyn advent_of_utils::Solution,
-    year: i32,
-    test_mode: bool,
-    input_dir: String,
+    day: u8,
+    config: &Config,
 ) {
-    let part = match part {
-        Some(part) => part.clone() as u8,
+    let part = match config.part {
+        Some(part) => part as u8,
         None => 0,
     };
     // Schedule part 1
     if part != 2 {
-        schedule_part_task(tasks, day, 1, solver, year, test_mode, input_dir.clone());
+        schedule_part_task(tasks, 1, day, solver, config.clone());
     }
     // Schedule part 2
     if part != 1 {
-        schedule_part_task(tasks, day, 2, solver, year, test_mode, input_dir);
+        schedule_part_task(tasks, 2, day, solver, config.clone());
     }
 }
 
 fn schedule_part_task(
     tasks: &mut JoinSet<Result<AocResult, AocError>>,
-    day: u8,
     part: u8,
+    day: u8,
     solver: &dyn advent_of_utils::Solution,
-    year: i32,
-    test_mode: bool,
-    input_dir: String,
+    config: Config,
 ) {
     let solver = solver.clone_box();
     tasks.spawn_blocking(move || {
-        let total_start = Instant::now();
+        let mut time_start = Instant::now();
 
-        let input = PuzzleInput::new(year, day, &input_dir, test_mode)?;
+        let input = PuzzleInput::new(config.year, day, &config.input_dir, config.test_mode)?;
 
-        // let solution_start = Instant::now();
+        if config.exclude_parse_time {
+            time_start = Instant::now();
+        }
         let result = if part == 1 {
             solver.part1(input)
         } else {
             solver.part2(input)
         };
-        // let time = solution_start.elapsed();
-        let time = total_start.elapsed();
+        let time = time_start.elapsed();
 
         Ok(AocResult::new(day, part, result, time))
     });

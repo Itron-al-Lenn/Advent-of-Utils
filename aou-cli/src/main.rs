@@ -27,6 +27,9 @@ struct Cli {
 
     #[arg(short, long)]
     test: bool,
+
+    #[arg(short, long)]
+    exclude_parse_time: bool,
 }
 
 #[tokio::main]
@@ -48,6 +51,7 @@ async fn main() {
         cli.test,
         cli.input_dir,
         cli.workspace_dir,
+        cli.exclude_parse_time,
     );
 
     if let Err(error) = runner::run(&config).await {

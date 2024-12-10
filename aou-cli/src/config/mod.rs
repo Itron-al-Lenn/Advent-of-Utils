@@ -2,6 +2,7 @@ use advent_of_utils::Parts;
 use std::{error::Error, path::PathBuf};
 use tokio::fs::{read_dir, DirEntry};
 
+#[derive(Clone)]
 pub struct Config {
     pub year: i32,
     pub day: Option<u8>,
@@ -9,6 +10,7 @@ pub struct Config {
     pub test_mode: bool,
     pub input_dir: String,
     pub workspace_dir: PathBuf,
+    pub exclude_parse_time: bool,
 }
 
 impl Config {
@@ -34,6 +36,7 @@ impl Config {
         test_mode: bool,
         input_dir: String,
         workspace_dir: String,
+        exclude_parse_time: bool,
     ) -> Self {
         Self {
             year,
@@ -42,6 +45,7 @@ impl Config {
             test_mode,
             input_dir,
             workspace_dir: (workspace_dir + "/target/release").into(),
+            exclude_parse_time,
         }
     }
 }
