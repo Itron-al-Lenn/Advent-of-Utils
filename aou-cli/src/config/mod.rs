@@ -1,24 +1,38 @@
-use advent_of_utils::Parts;
+use advent_of_utils::time::AocTime;
+use advent_of_utils::types::AocDatabase;
+use advent_of_utils::{error::AocError, Parts};
+use std::fs::{read_dir, DirEntry};
 use std::{error::Error, path::PathBuf};
-use tokio::fs::{read_dir, DirEntry};
 
-#[derive(Clone)]
-pub struct Config {
+use crate::Cli;
+
+pub enum Config {
+    Run(RunConfig),
+    Add(AddConfig),
+}
+
+pub struct RunConfig {
     pub year: i32,
     pub day: Option<u8>,
     pub part: Option<Parts>,
-    pub test_mode: bool,
-    pub input_dir: String,
+    pub test: bool,
+    pub database: AocDatabase,
     pub workspace_dir: PathBuf,
-    pub exclude_parse_time: bool,
 }
 
-impl Config {
-    pub async fn loader_paths(&self) -> Result<Vec<DirEntry>, Box<dyn Error>> {
+pub struct AddConfig {
+    pub year: i32,
+    pub day: u8,
+    pub database: AocDatabase,
+}
+
+impl RunConfig {
+    pub fn loader_paths(&self) -> Result<Vec<DirEntry>, Box<dyn Error>> {
         let mut matching_files = Vec::new();
 
-        let mut dir = read_dir(&self.workspace_dir).await?;
-        while let Some(entry) = dir.next_entry().await? {
+        let mut dir = read_dir(&self.workspace_dir)?;
+        while let Some(entry) = dir.next() {
+            let entry = entry?;
             if let Some(file_name) = entry.file_name().to_str() {
                 if file_name.contains(&self.year.to_string()) {
                     matching_files.push(entry);
@@ -28,24 +42,53 @@ impl Config {
 
         Ok(matching_files)
     }
+}
 
-    pub fn new(
-        year: i32,
-        day: Option<u8>,
-        part: Option<Parts>,
-        test_mode: bool,
-        input_dir: String,
-        workspace_dir: String,
-        exclude_parse_time: bool,
-    ) -> Self {
-        Self {
-            year,
-            day,
-            part,
-            test_mode,
-            input_dir,
-            workspace_dir: (workspace_dir + "/target/release").into(),
-            exclude_parse_time,
+impl Config {
+    pub fn from_cli(cli: Cli) -> Result<Self, AocError> {
+        match cli {
+            Cli::Run(args) => {
+                match args.day {
+                    Some(day) => AocTime::now().validate_date(args.year, day)?,
+                    None => AocTime::now().validate_year(args.year)?,
+                }
+                Ok(Self::Run(RunConfig {
+                    year: args.year,
+                    day: args.day,
+                    part: match args.part {
+                        Some(num) => Some(Parts::new(num)?),
+                        None => None,
+                    },
+                    test: false,
+                    workspace_dir: (args.workspace_dir + "/target/release").into(),
+                    database: AocDatabase::new()?,
+                }))
+            }
+            Cli::Test(args) => {
+                match args.day {
+                    Some(day) => AocTime::now().validate_date(args.year, day)?,
+                    None => AocTime::now().validate_year(args.year)?,
+                }
+                Ok(Self::Run(RunConfig {
+                    year: args.year,
+                    day: args.day,
+                    part: match args.part {
+                        Some(num) => Some(Parts::new(num)?),
+                        None => None,
+                    },
+                    test: true,
+                    workspace_dir: (args.workspace_dir + "/target/release").into(),
+                    database: AocDatabase::new()?,
+                }))
+            }
+            Cli::AddTest(args) => {
+                AocTime::now().validate_date(args.year, args.day)?;
+                Ok(Self::Add(AddConfig {
+                    year: args.year,
+                    day: args.day,
+                    database: AocDatabase::new()?,
+                }))
+            }
         }
     }
 }

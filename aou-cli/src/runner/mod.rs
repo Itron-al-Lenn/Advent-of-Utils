@@ -1,22 +1,15 @@
 mod executor;
 
-use advent_of_utils::{time::AocTime, types::display::Table};
-use std::error::Error;
+use advent_of_utils::{error::AocError, types::display::Table};
 
-use crate::{config::Config, loader};
+use crate::{config::RunConfig, loader};
 
-pub async fn run(config: &Config) -> Result<(), Box<dyn Error>> {
-    // Validate input parameters
-    match config.day {
-        Some(day) => AocTime::now().validate_date(config.year, day)?,
-        None => AocTime::now().validate_year(config.year)?,
-    }
-
-    // Load solutions using the new loader API
-    let solutions = loader::load_solutions(config).await?;
+pub fn run(config: &RunConfig) -> Result<(), AocError> {
+    // Load solutions
+    let solutions = loader::load_solutions(config)?;
 
     // Execute solutions
-    let execution_result = executor::run_solutions(config, &solutions).await?;
+    let execution_result = executor::run_solutions(config, &solutions)?;
 
     // Display results with metrics
     execution_result.table();

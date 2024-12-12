@@ -1,14 +1,14 @@
-use crate::types::{AocOption, PuzzleInput};
+use crate::types::AocOption;
 
 pub trait CloneBox {
     fn clone_box(&self) -> Box<dyn Solution>;
 }
 
 pub trait Solution: Send + Sync + CloneBox {
-    fn part1(&self, _input: PuzzleInput) -> AocOption {
+    fn part1(&self, _input: String) -> AocOption {
         AocOption::None
     }
-    fn part2(&self, _input: PuzzleInput) -> AocOption {
+    fn part2(&self, _input: String) -> AocOption {
         AocOption::None
     }
 }

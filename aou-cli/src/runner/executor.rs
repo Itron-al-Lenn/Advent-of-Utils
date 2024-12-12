@@ -1,22 +1,18 @@
 use advent_of_utils::{
     error::{AocError, SolutionError},
+    input::get_input,
     time::AocTime,
-    types::{AocResult, AocYear, PuzzleInput},
-    Parts,
+    types::{AocResult, AocYear},
 };
-use std::time::Instant;
-use tokio::task::JoinSet;
+use std::{collections::HashSet, time::Instant};
 
-use crate::{
-    config::{self, Config},
-    loader,
-};
+use crate::{config::RunConfig, loader};
 
-pub(crate) async fn run_solutions(
-    config: &Config,
+pub(crate) fn run_solutions(
+    config: &RunConfig,
     solutions: &loader::Solutions,
 ) -> Result<AocYear, AocError> {
-    let mut tasks: JoinSet<Result<AocResult, AocError>> = JoinSet::new();
+    let mut tasks: HashSet<AocResult> = HashSet::new();
     let year = config.year;
 
     match config.day {
@@ -25,7 +21,7 @@ pub(crate) async fn run_solutions(
                 .get(day)
                 .ok_or(AocError::Solution(SolutionError::NotImplemented))?;
 
-            schedule_day_tasks(&mut tasks, solver, day, config);
+            schedule_day_tasks(&mut tasks, solver, day, config)?;
         }
         None => {
             let time = AocTime::now();
@@ -33,75 +29,59 @@ pub(crate) async fn run_solutions(
                 .iter()
                 .filter(|(day, _)| time.is_puzzle_available(year, *day))
             {
-                schedule_day_tasks(&mut tasks, solver, day, config);
+                schedule_day_tasks(&mut tasks, solver, day, config)?;
             }
         }
     }
 
-    collect_results(tasks).await
+    collect_results(tasks)
 }
 
 fn schedule_day_tasks(
-    tasks: &mut JoinSet<Result<AocResult, AocError>>,
+    tasks: &mut HashSet<AocResult>,
     solver: &dyn advent_of_utils::Solution,
     day: u8,
-    config: &Config,
-) {
+    config: &RunConfig,
+) -> Result<(), AocError> {
     let part = match config.part {
         Some(part) => part as u8,
         None => 0,
     };
-    // Schedule part 1
     if part != 2 {
-        schedule_part_task(tasks, 1, day, solver, config.clone());
+        schedule_part_task(tasks, 1, day, solver, config)?;
     }
-    // Schedule part 2
     if part != 1 {
-        schedule_part_task(tasks, 2, day, solver, config.clone());
+        schedule_part_task(tasks, 2, day, solver, config)?;
     }
+    Ok(())
 }
 
 fn schedule_part_task(
-    tasks: &mut JoinSet<Result<AocResult, AocError>>,
+    tasks: &mut HashSet<AocResult>,
     part: u8,
     day: u8,
     solver: &dyn advent_of_utils::Solution,
-    config: Config,
-) {
+    config: &RunConfig,
+) -> Result<(), AocError> {
     let solver = solver.clone_box();
-    tasks.spawn_blocking(move || {
-        let mut time_start = Instant::now();
 
-        let input = PuzzleInput::new(config.year, day, &config.input_dir, config.test_mode)?;
+    let time_start = Instant::now();
 
-        if config.exclude_parse_time {
-            time_start = Instant::now();
-        }
-        let result = if part == 1 {
-            solver.part1(input)
-        } else {
-            solver.part2(input)
-        };
-        let time = time_start.elapsed();
+    let input = get_input(config.year, day, &config.database, config.test)?;
 
-        Ok(AocResult::new(day, part, result, time))
-    });
+    let result = if part == 1 {
+        solver.part1(input)
+    } else {
+        solver.part2(input)
+    };
+    let time = time_start.elapsed();
+
+    tasks.insert(AocResult::new(day, part, result, time));
+    Ok(())
 }
 
-async fn collect_results(
-    mut tasks: JoinSet<Result<AocResult, AocError>>,
-) -> Result<AocYear, AocError> {
-    let mut results = Vec::new();
-
-    while let Some(result) = tasks.join_next().await {
-        match result {
-            Ok(Ok(aoc_result)) => {
-                results.push(aoc_result);
-            }
-            Ok(Err(e)) => return Err(e),
-            Err(_) => return Err(AocError::Solution(SolutionError::NotImplemented)),
-        }
-    }
+fn collect_results(tasks: HashSet<AocResult>) -> Result<AocYear, AocError> {
+    let mut results: Vec<AocResult> = tasks.into_iter().collect();
 
     results.sort_by_key(|r| (r.day(), r.part() as u8));
 

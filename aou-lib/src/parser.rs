@@ -1,24 +1,20 @@
-use advent_of_utils::types::PuzzleInput;
-
-pub fn by_line(input: &PuzzleInput) -> Vec<String> {
-    input.input().lines().map(String::from).collect()
+pub fn by_line(input: String) -> Vec<String> {
+    input.lines().map(String::from).collect()
 }
 
-pub fn by_line_and_empty_line(input: &PuzzleInput) -> Vec<Vec<String>> {
+pub fn by_line_and_empty_line(input: String) -> Vec<Vec<String>> {
     input
-        .input()
         .split("\n\n")
         .map(|lines| lines.lines().map(String::from).collect())
         .collect()
 }
 
-pub fn by_char(input: &PuzzleInput) -> Vec<char> {
-    input.input().chars().collect()
+pub fn by_char(input: String) -> Vec<char> {
+    input.chars().collect()
 }
 
-pub fn by_line_and_char_as_int(input: &PuzzleInput) -> Vec<Vec<i32>> {
+pub fn by_line_and_char_as_int(input: String) -> Vec<Vec<i32>> {
     input
-        .input()
         .lines()
         .map(|line| -> Vec<i32> {
             line.chars()
@@ -28,9 +24,8 @@ pub fn by_line_and_char_as_int(input: &PuzzleInput) -> Vec<Vec<i32>> {
         .collect()
 }
 
-pub fn by_line_and_word_as_int(input: &PuzzleInput) -> Vec<Vec<i32>> {
+pub fn by_line_and_word_as_int(input: String) -> Vec<Vec<i32>> {
     input
-        .input
         .lines()
         .map(|line| -> Vec<i32> {
             line.split_whitespace()

@@ -1,7 +1,9 @@
+mod database;
 mod input;
 mod loading;
 mod solution;
 
+pub use database::DatabaseError;
 pub use input::InputError;
 pub use loading::LoadingError;
 pub use solution::SolutionError;
@@ -18,6 +20,9 @@ pub enum AocError {
 
     #[error("Loading error: {0}")]
     Loading(#[from] LoadingError),
+
+    #[error("Database error: {0}")]
+    Database(#[from] DatabaseError),
 
     #[error("Invalid part number: {0}")]
     InvalidPart(u8),

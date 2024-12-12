@@ -8,15 +8,17 @@ chrono = "0.4.38"
 reqwest = { version = "0.12.9", features = ["cookies", "blocking"] }
 thiserror = "2.0.3"
 libloading = "0.8.6"
+rusqlite = "0.32.1"
+directories = "5.0.1"
+r2d2 = "0.8.10"
+r2d2_sqlite = "0.25.0"
 
 [workspace]
 resolver = "2"
 members = [
   "aou-cli",
   "aou-lib",
+  "aou-macro",
   # "examples/day01",
   # "examples/template",
 ]
-
-[workspace.dependencies]
-tokio = { version = "1.41.1", features = ["full"] }

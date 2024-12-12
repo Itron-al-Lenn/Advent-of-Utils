@@ -18,19 +18,3 @@ pub enum SolutionError {
     #[error("Solution not implemented")]
     NotImplemented,
 }
-
-impl SolutionError {
-    pub fn execution_error(msg: impl Into<String>) -> Self {
-        Self::ExecutionFailed {
-            msg: msg.into(),
-            source: None,
-        }
-    }
-
-    pub fn with_source(mut self, err: impl std::error::Error + Send + Sync + 'static) -> Self {
-        if let Self::ExecutionFailed { ref mut source, .. } = self {
-            *source = Some(Box::new(err));
-        }
-        self
-    }
-}

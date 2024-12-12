@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use crate::config::Config;
+use crate::config::RunConfig;
 
 #[repr(C)]
 struct RawSolutions {
@@ -18,8 +18,8 @@ pub(super) struct SolutionLibrary {
 }
 
 impl SolutionLibrary {
-    pub async fn load(config: &Config) -> Result<Self, AocError> {
-        let path = find_library(config).await?;
+    pub fn load(config: &RunConfig) -> Result<Self, AocError> {
+        let path = find_library(config)?;
 
         unsafe {
             let lib = Library::new(&path).map_err(|e| {
@@ -83,8 +83,8 @@ impl Drop for SolutionLibrary {
     }
 }
 
-async fn find_library(config: &Config) -> Result<PathBuf, AocError> {
-    let paths = config.loader_paths().await.map_err(|_e| {
+fn find_library(config: &RunConfig) -> Result<PathBuf, AocError> {
+    let paths = config.loader_paths().map_err(|_e| {
         AocError::Loading(LoadingError::LibraryNotFound {
             year: config.year,
             search_path: config.workspace_dir.clone(),

@@ -8,7 +8,7 @@ use super::{
     AocOption, Parts,
 };
 
-#[derive(Clone)]
+#[derive(Clone, Hash, Eq, PartialEq)]
 pub struct AocResult {
     day: u8,
     part: Parts,

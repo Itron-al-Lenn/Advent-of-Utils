@@ -1,3 +1,5 @@
+use crate::error::AocError;
+use crate::types::AocDatabase;
 use reqwest::blocking::Client;
 use std::{fmt::Display, sync::Arc};
 
@@ -14,8 +16,10 @@ impl SessionToken {
     pub fn new() -> Result<Self, InputError> {
         match std::env::var("AOC_SESSION") {
             Ok(token) => Ok(Self(token)),
-            Err(e) => Err(InputError::MissingToken {
-                reason: format!("AOC_SESSION environment variable not set: {}", e),
+            Err(e) => Err(InputError::VarError {
+                key: "AOC_SESSION".to_string(),
+                reason: "Faield fetching the session token".to_string(),
+                source: Some(e),
             }),
         }
     }
@@ -47,7 +51,7 @@ fn create_client() -> Result<Client, InputError> {
         .expect("Failed to create HTTP client"))
 }
 
-pub fn fetch_input(year: i32, day: u8) -> Result<String, InputError> {
+fn fetch_input(year: i32, day: u8) -> Result<String, InputError> {
     let url = format!("{}/{}/day/{}/input", AOC_BASE_URL, year, day);
 
     create_client()?
@@ -73,4 +77,18 @@ pub fn fetch_input(year: i32, day: u8) -> Result<String, InputError> {
             reason: "Failed to read response text".to_string(),
             source: Some(e),
         })
+}
+
+pub fn get_input(year: i32, day: u8, db: &AocDatabase, test: bool) -> Result<String, AocError> {
+    if db.has_input(year, day, test)? {
+        let input = db.get_input(year, day, test)?;
+        Ok(input)
+    } else if !test {
+        println!("Fetching online...");
+        let input = fetch_input(year, day)?;
+        db.set_input(year, day, test, input.clone())?;
+        Ok(input)
+    } else {
+        Err(AocError::Input(InputError::NoTestInput { day }))
+    }
 }

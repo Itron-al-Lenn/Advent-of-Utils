@@ -3,7 +3,7 @@ mod ffi;
 use advent_of_utils::{error::AocError, Solution};
 use std::collections::HashMap;
 
-use crate::config::Config;
+use crate::config::RunConfig;
 use ffi::SolutionLibrary;
 
 /// Represents a collection of loaded solutions for a specific year
@@ -27,8 +27,8 @@ impl Solutions {
 }
 
 /// Load solutions for a specific year
-pub async fn load_solutions(config: &Config) -> Result<Solutions, AocError> {
-    let library = SolutionLibrary::load(config).await?;
+pub fn load_solutions(config: &RunConfig) -> Result<Solutions, AocError> {
+    let library = SolutionLibrary::load(config)?;
     let solutions = library.get_solutions()?;
 
     Ok(Solutions {

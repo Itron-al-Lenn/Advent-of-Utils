@@ -5,4 +5,4 @@ pub mod time;
 pub mod types;
 
 pub use solution::Solution;
-pub use types::{AocOption, Parts, PuzzleInput};
+pub use types::{AocOption, Parts};

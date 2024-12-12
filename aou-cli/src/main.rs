@@ -1,61 +1,61 @@
+mod adder;
 mod config;
 mod loader;
 mod runner;
 
-use advent_of_utils::Parts;
-use clap::Parser;
+use clap::{Args, Parser};
 use config::Config;
 use std::process;
 
 #[derive(Parser)]
+enum Cli {
+    Run(RunArgs),
+    Test(RunArgs),
+    AddTest(AddArgs),
+}
+
+#[derive(Args)]
 #[command(author, version, about, long_about = None)]
-struct Cli {
+struct RunArgs {
     #[arg()]
     year: i32,
 
-    #[arg(short, long)]
+    #[arg()]
     day: Option<u8>,
 
     #[arg(short, long)]
     part: Option<u8>,
 
-    #[arg(long, default_value = "inputs")]
-    input_dir: String,
-
     #[arg(long, default_value = ".")]
     workspace_dir: String,
-
-    #[arg(short, long)]
-    test: bool,
-
-    #[arg(short, long)]
-    exclude_parse_time: bool,
 }
 
-#[tokio::main]
-async fn main() {
+#[derive(Args)]
+#[command(author, version, about, long_about = None)]
+struct AddArgs {
+    #[arg()]
+    year: i32,
+
+    #[arg()]
+    day: u8,
+}
+
+fn main() {
     let cli = Cli::parse();
 
-    let part = cli.part.map(|num| match Parts::new(num) {
-        Ok(part) => part,
+    let config = match Config::from_cli(cli) {
+        Ok(config) => config,
         Err(error) => {
-            println!("Error: {}", error);
+            println!("{error}");
             process::exit(1);
         }
-    });
+    };
 
-    let config = Config::new(
-        cli.year,
-        cli.day,
-        part,
-        cli.test,
-        cli.input_dir,
-        cli.workspace_dir,
-        cli.exclude_parse_time,
-    );
-
-    if let Err(error) = runner::run(&config).await {
-        println!("Error: {}", error);
+    if let Err(error) = match config {
+        Config::Run(config) => runner::run(&config),
+        Config::Add(config) => adder::run(&config),
+    } {
+        println!("{error}");
         process::exit(1);
     };
 }
