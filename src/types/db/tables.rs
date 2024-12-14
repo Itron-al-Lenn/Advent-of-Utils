@@ -194,4 +194,39 @@ impl AocDatabase {
         self.execute(&query, params![year, day, result])?;
         Ok(())
     }
+
+    pub fn has_result(
+        &self,
+        year: i32,
+        day: u8,
+        part: Parts,
+        test: bool,
+    ) -> Result<bool, AocError> {
+        let table = match test {
+            true => "Test_Results",
+            false => "Results",
+        };
+
+        let field = match part {
+            Parts::Part1 => "part_1",
+            Parts::Part2 => "part_2",
+        };
+
+        let conn = self.get_conn()?;
+        match conn.query_row(
+            &format!(
+                "SELECT COUNT({field}) FROM {table} 
+                 WHERE year = ? AND day = ? 
+                 AND {field} IS NOT NULL"
+            ),
+            [year, day.into()],
+            |row| row.get::<usize, i32>(0),
+        ) {
+            Ok(count) => Ok(count > 0),
+            Err(error) => Err(AocError::Database(DatabaseError::DatabaseQuerying {
+                object: "Input".to_string(),
+                source: error,
+            })),
+        }
+    }
 }
