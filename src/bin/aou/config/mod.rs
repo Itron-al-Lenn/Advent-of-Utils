@@ -30,8 +30,8 @@ impl RunConfig {
     pub fn loader_paths(&self) -> Result<Vec<DirEntry>, Box<dyn Error>> {
         let mut matching_files = Vec::new();
 
-        let mut dir = read_dir(&self.workspace_dir)?;
-        while let Some(entry) = dir.next() {
+        let dir = read_dir(&self.workspace_dir)?;
+        for entry in dir {
             let entry = entry?;
             if let Some(file_name) = entry.file_name().to_str() {
                 if file_name.contains(&self.year.to_string()) {

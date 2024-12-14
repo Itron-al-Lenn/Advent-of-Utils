@@ -1,6 +1,8 @@
 use std::env;
 
+use advent_of_utils::error::AocError;
 use advent_of_utils::types::AocDatabase;
+use advent_of_utils::Parts;
 use std::io::{Read, Write};
 use std::process::Command;
 use tempfile::NamedTempFile;
@@ -65,3 +67,16 @@ pub fn edit_input(
     db.set_input(year, day, true, new_content)?;
     Ok(())
 }
+
+// fn get_result(year: i32, day: u8, part: Parts, db: &AocDatabase) -> Result<(), AocError> {
+//     println!("Expected Test Result for {part}. Leave empty for keeping the current set Result. Must be set before you are able to run the test for this part:\n");
+//
+//     Ok(())
+// }
+//
+// /// Get test results from the command line
+// pub fn get_results(year: i32, day: u8, db: &AocDatabase) -> Result<(), AocError> {
+//     get_result(year, day, Parts::Part1, db)?;
+//     get_result(year, day, Parts::Part2, db)?;
+//     Ok(())
+// }
