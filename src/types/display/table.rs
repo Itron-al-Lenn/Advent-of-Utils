@@ -6,7 +6,7 @@ pub trait Table {
     }
 
     fn reduced_table(&self) {
-        self.table_constructor().display();
+        self.reduced_table_constructor().display();
     }
 }
 
