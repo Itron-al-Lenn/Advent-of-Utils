@@ -84,7 +84,7 @@ impl Drop for SolutionLibrary {
 }
 
 fn find_library(config: &RunConfig) -> Result<PathBuf, AocError> {
-    let paths = config.loader_paths().map_err(|_e| {
+    let paths = config.loader_paths().map_err(|_| {
         AocError::Loading(LoadingError::LibraryNotFound {
             year: config.year,
             search_path: config.workspace_dir.clone(),
