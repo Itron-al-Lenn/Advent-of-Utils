@@ -1,12 +1,15 @@
+use quote::ToTokens;
+use syn::punctuated::Punctuated;
+
 #[proc_macro]
 pub fn add_days(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let n = syn::parse_macro_input!(input as syn::LitInt);
-    let n_value = n.base10_parse::<u8>().unwrap();
+    let exprs = syn::parse_macro_input!(input with Punctuated::<syn::Expr, syn::Token![,]>::parse_terminated);
+    let numbers = evaluate_expr(exprs);
 
     let mut modules: Vec<proc_macro2::TokenStream> = Vec::new();
     let mut uses: Vec<proc_macro2::TokenStream> = Vec::new();
     let mut map: Vec<proc_macro2::TokenStream> = Vec::new();
-    for i in 1..=n_value {
+    for i in numbers {
         let day: syn::Ident = quote::format_ident!("day{:02}", i);
         let method: syn::Ident = quote::format_ident!("Day{:02}", i);
         modules.push(quote::quote! {
@@ -60,4 +63,33 @@ pub fn add_days(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     };
 
     proc_macro::TokenStream::from(expanded)
+}
+
+fn evaluate_expr(input: Punctuated<syn::Expr, syn::token::Comma>) -> Vec<u8> {
+    let mut numbers = Vec::new();
+    for expr in input {
+        match expr {
+            syn::Expr::Range(syn::ExprRange {
+                start,
+                limits: _,
+                end,
+                ..
+            }) => {
+                if let (Some(start), Some(end)) = (start, end) {
+                    // Extract start and end values
+                    if let (syn::Expr::Lit(start), syn::Expr::Lit(end)) = (*start, *end) {
+                        let start_num = start.to_token_stream().to_string().parse::<u8>().unwrap();
+                        let end_num = end.to_token_stream().to_string().parse::<u8>().unwrap();
+                        numbers.extend(start_num..=end_num);
+                    }
+                }
+            }
+            syn::Expr::Lit(lit) => {
+                let num = lit.to_token_stream().to_string().parse::<u8>().unwrap();
+                numbers.push(num);
+            }
+            _ => {}
+        }
+    }
+    numbers
 }
