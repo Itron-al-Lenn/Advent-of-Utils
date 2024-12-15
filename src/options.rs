@@ -1,5 +1,5 @@
-use super::Debug;
-use super::Display;
+use std::fmt::Debug;
+use std::fmt::Display;
 
 #[derive(Clone, Hash, Eq, PartialEq)]
 pub enum AocOption {
@@ -27,7 +27,6 @@ macro_rules! impl_from_number {
     }
 }
 
-// Implement for all the numeric types you want to support
 impl_from_number!(i8, i16, i32, i64, u8, u16, u32, u64, isize, usize);
 
 impl<T: Into<AocOption>> From<Option<T>> for AocOption {

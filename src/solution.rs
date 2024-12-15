@@ -1,4 +1,4 @@
-use crate::types::AocOption;
+use crate::AocOption;
 
 pub trait CloneBox {
     fn clone_box(&self) -> Box<dyn Solution>;
