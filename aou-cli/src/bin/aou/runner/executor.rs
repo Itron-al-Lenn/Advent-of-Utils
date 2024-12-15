@@ -4,7 +4,7 @@ use aou_cli::{
     time::AocTime,
     types::{AocResult, AocYear},
 };
-use std::{collections::HashSet, time::Instant};
+use std::collections::HashSet;
 
 use crate::{config::RunConfig, loader};
 
@@ -65,16 +65,14 @@ fn schedule_part_task(
 ) -> Result<(), AocError> {
     let solver = solver.clone_box();
 
-    let time_start = Instant::now();
-
-    let input = get_input(config.year, day, &config.database, config.test)?;
+    let (input, time) = get_input(config.year, day, &config.database, config.test)?;
 
     let result = if part == 1 {
         solver.part1(input)
     } else {
         solver.part2(input)
     };
-    let time = time_start.elapsed();
+    let time = time.elapsed();
 
     tasks.insert(AocResult::new(day, part, result, time));
     Ok(())

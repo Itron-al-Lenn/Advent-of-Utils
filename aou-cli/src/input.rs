@@ -1,7 +1,7 @@
 use crate::error::AocError;
 use crate::types::AocDatabase;
 use reqwest::blocking::Client;
-use std::{fmt::Display, sync::Arc};
+use std::{fmt::Display, sync::Arc, time::Instant};
 
 use crate::error::InputError;
 
@@ -79,15 +79,22 @@ fn fetch_input(year: i32, day: u8) -> Result<String, InputError> {
         })
 }
 
-pub fn get_input(year: i32, day: u8, db: &AocDatabase, test: bool) -> Result<String, AocError> {
+pub fn get_input(
+    year: i32,
+    day: u8,
+    db: &AocDatabase,
+    test: bool,
+) -> Result<(String, Instant), AocError> {
     if db.has_input(year, day, test)? {
+        let time = Instant::now();
         let input = db.get_input(year, day, test)?;
-        Ok(input)
+        Ok((input, time))
     } else if !test {
         println!("Fetching online...");
         let input = fetch_input(year, day)?;
+        let time = Instant::now();
         db.set_input(year, day, test, input.clone())?;
-        Ok(input)
+        Ok((input, time))
     } else {
         Err(AocError::Input(InputError::NoTestInput { day }))
     }
