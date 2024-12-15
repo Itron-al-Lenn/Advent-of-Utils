@@ -23,7 +23,7 @@ pub struct AocDatabase {
 
 impl AocDatabase {
     pub fn new() -> Result<Self, AocError> {
-        let path = get_data_path()?.join("aou.db3");
+        let path = get_data_path()?.join("aou.db");
 
         let manager = SqliteConnectionManager::file(&path);
         let pool = Pool::builder()
