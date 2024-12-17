@@ -1,28 +1,29 @@
 /*!
-# Overview
-`advent-of-utils` is a helper crate for solving [Advent of Code](https://adventofcode.com/) challenges. It handles the boilerplate work so you can focus on solving the puzzles.
+# Advent-of-Utils
 
-# Table of Contents
-- [Overview](#overview)
+## Introduction
+`Advent of Utils` helps you solving your [Advent of Code](https://adventofcode.com/) challenges. Not by implementing the solutions for you, but by handling the boilerplate work so you can focus on solving the puzzles.
+
+## Table of Contents
 - [Features](#features)
 - [Setup and Usage](#setup-and-usage)
 - [Implementation Guide](#implementation-guide)
 - [CLI Reference](#cli-reference)
+- [Disclaimer](#disclaimer)
 
-# Features
+## Features
 - 🚀 Automatic input fetching with local caching
 - 📊 Built-in performance benchmarking
 - 🔧 Simple macro-based setup
-- 🎯 Type-safe solution handling
 - 💾 Session token management
 
-# Setup
+## Setup
 
-## Prerequisites
+### Prerequisites
 1. An Advent of Code account and session token
 2. Rust toolchain installed
 
-## Installation
+### Installation
 Add this to your `Cargo.toml`:
 ```toml
 [dependencies]
@@ -32,7 +33,7 @@ advent-of-utils = "0.1.0"  # Replace with actual version
 crate-type = ["cdylib"]
 ```
 
-## Environment Setup
+### Environment Setup
 
 Set your Advent of Code session token:
 
@@ -46,9 +47,9 @@ $env:AOC_SESSION="your_session_token"
 
 You will find your session token in the cookies on the [Advent of Code](https://adventofcode.com/) page when you are logged in.
 
-# CLI Reference
+## CLI Reference
 
-## Available Commands
+### Available Commands
 
 ```bash
 # Run a specific day's solution
