@@ -1,6 +1,6 @@
 mod input_control;
 
-use aou_cli::error::{AocError, InputError};
+use advent_of_utils_cli::error::{AocError, InputError};
 
 use crate::config::AddTestConfig;
 

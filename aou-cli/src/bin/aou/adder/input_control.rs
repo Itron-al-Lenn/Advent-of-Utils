@@ -1,6 +1,6 @@
 use std::env;
 
-use aou_cli::{error::AocError, types::AocDatabase, Parts};
+use advent_of_utils_cli::{error::AocError, types::AocDatabase, Parts};
 use std::io::{Read, Write};
 use std::process::Command;
 use tempfile::NamedTempFile;

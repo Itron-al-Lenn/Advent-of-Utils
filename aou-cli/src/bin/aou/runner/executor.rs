@@ -1,4 +1,4 @@
-use aou_cli::{
+use advent_of_utils_cli::{
     error::{AocError, SolutionError},
     input::get_input,
     time::AocTime,

@@ -1,5 +1,5 @@
 use advent_of_utils::Solution;
-use aou_cli::error::{AocError, LoadingError};
+use advent_of_utils_cli::error::{AocError, LoadingError};
 use libloading::{Library, Symbol};
 use std::collections::HashMap;
 use std::path::PathBuf;

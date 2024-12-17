@@ -1,6 +1,6 @@
 mod executor;
 
-use aou_cli::{error::AocError, types::display::Table};
+use advent_of_utils_cli::{error::AocError, types::display::Table};
 
 use crate::{config::RunConfig, loader};
 

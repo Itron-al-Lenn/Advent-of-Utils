@@ -1,7 +1,7 @@
 mod ffi;
 
 use advent_of_utils::Solution;
-use aou_cli::error::AocError;
+use advent_of_utils_cli::error::AocError;
 use std::collections::HashMap;
 
 use crate::config::RunConfig;
