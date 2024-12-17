@@ -1,5 +1,5 @@
 [package]
-name = "aou-cli"
+name = "advent-of-utils-cli"
 version = "0.1.0"
 edition = "2021"
 

@@ -5,13 +5,8 @@ edition = "2021"
 readme = "./README.md"
 
 [dependencies]
-aou-macro = { version = "0.1.0", path = "./aou-macro/" }
+advent-of-utils-macros = { version = "0.1.0", path = "./aou-macro/" }
 
 [workspace]
 resolver = "2"
-members = [
-  "aou-cli",
-  "aou-macro",
-  # "examples/day01",
-  # "examples/template",
-]
+members = ["aou-cli", "aou-macro"]
