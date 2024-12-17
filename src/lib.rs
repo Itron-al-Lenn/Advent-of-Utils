@@ -66,6 +66,31 @@ aou --help
 mod options;
 mod solution;
 
-pub use aou_macro::add_days;
+/// A procedural macro that generates boilerplate code for Advent of Code solution modules.
+///
+/// This macro takes a comma-separated list of day numbers and generates:
+/// - Individual modules for each day which have to be populated with your solutions
+///
+/// # Arguments
+///
+/// * Takes a comma-separated list of expressions representing the day numbers (e.g., `add_days!(1..10, 12, 13)`)
+///
+/// # Generated Code
+///
+/// For each day number, the macro:
+/// 1. Creates a module declaration (`mod dayXX`)
+/// 3. Generates a HashMap mapping day numbers to solution implementations which is accessed by the
+///    CLI
+///
+/// # Example
+///
+/// ```rust
+/// add_days!(1, 2, 15);
+/// ```
+///
+/// This will generate:
+/// - Modules: `mod day01;`, `mod day02;`, `mod day15;`
+/// - Solution mapping in a HashMap
+pub use advent_of_utils_macros::add_days;
 pub use options::AocOption;
 pub use solution::Solution;
