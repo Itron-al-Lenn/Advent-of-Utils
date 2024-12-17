@@ -4,7 +4,6 @@
 `Advent of Utils` helps you solving your [Advent of Code](https://adventofcode.com/) challenges. Not by implementing the solutions for you, but by handling the boilerplate work so you can focus on solving the puzzles.
 
 ## Table of Contents
-- [Overview](#overview)
 - [Features](#features)
 - [Setup and Usage](#setup-and-usage)
 - [Implementation Guide](#implementation-guide)
