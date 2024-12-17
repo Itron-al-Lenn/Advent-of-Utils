@@ -63,8 +63,6 @@ fn schedule_part_task(
     solver: &dyn advent_of_utils::Solution,
     config: &RunConfig,
 ) -> Result<(), AocError> {
-    let solver = solver.clone_box();
-
     let (input, time) = get_input(config.year, day, &config.database, config.test)?;
 
     let result = if part == 1 {
