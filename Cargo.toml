@@ -5,7 +5,7 @@ edition = "2021"
 readme = "./README.md"
 
 [dependencies]
-aou-macro = { path = "./aou-macro/" }
+aou-macro = { version = "0.1.0", path = "./aou-macro/" }
 
 [workspace]
 resolver = "2"
