@@ -53,7 +53,7 @@ fn main() {
 
     if let Err(error) = match config {
         Config::Run(config) => runner::run(&config),
-        Config::Add(config) => adder::run(&config),
+        Config::AddTest(config) => adder::run(&config),
     } {
         println!("{error}");
         process::exit(1);

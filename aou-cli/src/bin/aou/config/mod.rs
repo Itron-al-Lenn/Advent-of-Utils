@@ -6,7 +6,7 @@ use crate::Cli;
 
 pub enum Config {
     Run(RunConfig),
-    Add(AddConfig),
+    AddTest(AddTestConfig),
 }
 
 pub struct RunConfig {
@@ -18,10 +18,16 @@ pub struct RunConfig {
     pub workspace_dir: PathBuf,
 }
 
-pub struct AddConfig {
+pub struct AddTestConfig {
     pub year: i32,
     pub day: u8,
     pub database: AocDatabase,
+}
+
+pub struct AddDayConfig {
+    pub year: i32,
+    pub day: u8,
+    pub workspace_dir: PathBuf,
 }
 
 impl RunConfig {
@@ -81,7 +87,7 @@ impl Config {
             }
             Cli::AddTest(args) => {
                 AocTime::now().validate_date(args.year, args.day)?;
-                Ok(Self::Add(AddConfig {
+                Ok(Self::AddTest(AddTestConfig {
                     year: args.year,
                     day: args.day,
                     database: AocDatabase::new()?,
