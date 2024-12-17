@@ -26,10 +26,15 @@
 Add this to your `Cargo.toml`:
 ```toml
 [dependencies]
-advent-of-utils = "0.1.0"  # Replace with actual version
+advent-of-utils = "0.2.0"
 
 [lib]
 crate-type = ["cdylib"]
+```
+
+Install the CLI using:
+```bash
+cargo install advent-of-utils-cli
 ```
 
 ### Environment Setup
