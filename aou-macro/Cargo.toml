@@ -2,6 +2,8 @@
 name = "advent-of-utils-macros"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+description = "Macros for the Advent of Utils library"
 
 [lib]
 proc-macro = true
