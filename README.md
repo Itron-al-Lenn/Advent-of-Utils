@@ -1,7 +1,7 @@
 # Advent-of-Utils
 
-## Overview
-`advent-of-utils` is a helper crate for solving [Advent of Code](https://adventofcode.com/) challenges. It handles the boilerplate work so you can focus on solving the puzzles.
+## Introduction
+`Advent of Utils` helps you solving your [Advent of Code](https://adventofcode.com/) challenges. Not by implementing the solutions for you, but by handling the boilerplate work so you can focus on solving the puzzles.
 
 ## Table of Contents
 - [Overview](#overview)
@@ -15,7 +15,6 @@
 - 🚀 Automatic input fetching with local caching
 - 📊 Built-in performance benchmarking
 - 🔧 Simple macro-based setup
-- 🎯 Type-safe solution handling
 - 💾 Session token management
 
 ## Setup
