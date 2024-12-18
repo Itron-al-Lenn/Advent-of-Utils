@@ -1,7 +1,7 @@
 use advent_of_utils_cli::{
     error::{AocError, SolutionError},
     input::get_input,
-    time::AocTime,
+    types::AocTime,
     types::{AocResult, AocYear},
 };
 use std::collections::HashSet;

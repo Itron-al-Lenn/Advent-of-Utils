@@ -1,5 +1,5 @@
-use chrono::{DateTime, Datelike, Duration, FixedOffset, NaiveDateTime, Utc};
-use std::sync::OnceLock;
+use chrono::{DateTime, Datelike, FixedOffset, NaiveDateTime, Utc};
+use std::{fmt::Display, sync::OnceLock, time::Duration};
 
 use crate::error::AocError;
 
@@ -100,12 +100,43 @@ impl AocTime {
     }
 
     /// Gets the time until a puzzle becomes available
-    pub fn time_until_release(&self, year: i32, day: u8) -> Option<Duration> {
+    pub fn time_until_release(&self, year: i32, day: u8) -> Option<chrono::Duration> {
         let release = self.puzzle_release_time(year, day);
         if release > self.current_time {
             Some(release.signed_duration_since(self.current_time))
         } else {
             None
+        }
+    }
+}
+
+#[derive(PartialEq, Eq, Hash, Clone, Default)]
+pub struct AocDuration {
+    duration: Vec<Duration>,
+}
+
+impl AocDuration {
+    pub fn new(duration: Vec<Duration>) -> Self {
+        Self { duration }
+    }
+    pub fn get_mut_time(&mut self) -> &mut Vec<Duration> {
+        &mut self.duration
+    }
+    pub fn avg_time(&self) -> Duration {
+        self.duration.iter().sum::<Duration>() / self.duration.len() as u32
+    }
+    pub fn additional_time(&mut self, time: &mut Vec<Duration>) {
+        self.duration.append(time);
+    }
+}
+
+impl Display for AocDuration {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self.avg_time() {
+            time if time.as_secs() > 0 => write!(f, "{:.2} s", time.as_secs_f32()),
+            time if time.as_millis() > 0 => write!(f, "{:.2} ms", time.as_micros() as f32 / 1000.0),
+            time if time.as_micros() > 0 => write!(f, "{:.2} μs", time.as_nanos() as f32 / 1000.0),
+            time => write!(f, "{} ns", time.as_nanos()),
         }
     }
 }

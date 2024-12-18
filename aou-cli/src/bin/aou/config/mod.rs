@@ -1,4 +1,4 @@
-use advent_of_utils_cli::{error::AocError, time::AocTime, types::AocDatabase, Parts};
+use advent_of_utils_cli::{error::AocError, types::AocDatabase, types::AocTime, Parts};
 use std::fs::{read_dir, DirEntry};
 use std::{error::Error, path::PathBuf};
 

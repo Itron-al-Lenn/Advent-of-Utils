@@ -5,6 +5,7 @@ use std::{
 
 use super::{
     display::{Table, TableStruct},
+    time::AocDuration,
     Parts,
 };
 use advent_of_utils::AocOption;
@@ -14,7 +15,7 @@ pub struct AocResult {
     day: u8,
     part: Parts,
     result: AocOption,
-    time: Vec<Duration>,
+    time: AocDuration,
 }
 
 impl AocResult {
@@ -23,7 +24,7 @@ impl AocResult {
             day,
             part: Parts::new(part).unwrap(),
             result,
-            time: vec![time],
+            time: AocDuration::new(vec![time]),
         }
     }
 
@@ -35,15 +36,6 @@ impl AocResult {
     }
     pub fn result(&self) -> &AocOption {
         &self.result
-    }
-    pub fn get_mut_time(&mut self) -> &mut Vec<Duration> {
-        &mut self.time
-    }
-    pub fn avg_time(&self) -> Duration {
-        self.time.iter().sum::<Duration>() / self.time.len() as u32
-    }
-    pub fn additional_time(&mut self, time: &mut Vec<Duration>) {
-        self.time.append(time);
     }
 }
 
@@ -63,7 +55,7 @@ impl AocYear {
 
             match days.get_mut(&key) {
                 Some(r) => {
-                    r.additional_time(result.get_mut_time());
+                    r.time.additional_time(result.time.get_mut_time());
                 }
                 None => {
                     available_days.insert(day);
@@ -84,8 +76,8 @@ impl Table for AocYear {
             "Day".to_string(),
             "Part 1".to_string(),
             "Part 2".to_string(),
-            "Avg. Time 1 (μs)".to_string(),
-            "Avg. Time 2 (μs)".to_string(),
+            "Avg. Time 1".to_string(),
+            "Avg. Time 2".to_string(),
         ]];
         let results = self.days.clone();
         for day in self.available_days.iter() {
@@ -105,15 +97,13 @@ impl Table for AocYear {
                     .to_string(),
                 results
                     .get(&part1)
-                    .map(|r| r.avg_time())
+                    .map(|r| r.time.clone())
                     .unwrap_or_default()
-                    .as_micros()
                     .to_string(),
                 results
                     .get(&part2)
-                    .map(|r| r.avg_time())
+                    .map(|r| r.time.clone())
                     .unwrap_or_default()
-                    .as_micros()
                     .to_string(),
             ])
         }
