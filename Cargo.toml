@@ -7,6 +7,16 @@ license = "MIT"
 description = "CLI and library to organise and run Advent of Code puzzles"
 repository = "https://github.com/Itron-al-Lenn/Advent-of-Utils"
 
+[[example]]
+name = "year_example"
+crate-type = ["cdylib"]
+path = "examples/year_example/lib.rs"
+
+[[example]]
+name = "template"
+crate-type = ["cdylib"]
+path = "examples/template/lib.rs"
+
 [dependencies]
 advent-of-utils-macros = { version = "^0.1.0", path = "./aou-macro/" }
 
