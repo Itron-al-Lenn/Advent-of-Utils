@@ -60,20 +60,6 @@ First, create a new Rust project for your solutions:
 ```bash
 cargo new aoc-2023
 cd aoc-2023
-
-## CLI Reference
-
-### Available Commands
-
-```bash
-# Run a specific day's solution
-aou run <YEAR> <DAY>
-
-# Run all implemented solutions
-aou run <YEAR>
-
-# Show help
-aou --help
 ```
 
 ### 2. Set Up Your Project
@@ -113,7 +99,7 @@ impl Solution for Day01 {
 
 ### 4. Run Solutions
 
-Once your solutions are implemented and your code compiles you can run the your code through the `aou` CLI:
+Once your solutions are implemented and your code compiles you can run the your code through the `aou` CLI.
 
 ## CLI Reference
 
