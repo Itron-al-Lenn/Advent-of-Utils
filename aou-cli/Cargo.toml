@@ -1,6 +1,6 @@
 [package]
 name = "advent-of-utils-cli"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "MIT"
 description = "CLI for the Advent of Utils library"
@@ -10,7 +10,7 @@ repository = "https://github.com/Itron-al-Lenn/Advent-of-Utils"
 name = "aou"
 
 [dependencies]
-advent-of-utils = { version = "0.2.0", path = ".." }
+advent-of-utils = { version = "^0.2.0", path = ".." }
 chrono = "0.4.38"
 reqwest = { version = "0.12.9", features = ["cookies", "blocking"] }
 thiserror = "2.0.3"
