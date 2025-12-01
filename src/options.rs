@@ -35,7 +35,7 @@ use std::num::TryFromIntError;
 pub enum AocOption {
     /// Contains a String value for text-based results
     Str(String),
-    /// Contains a 128-bit signed integer value for numeric results
+    /// Contains a 64-bit signed integer value for numeric results
     Int(i64),
     /// Represents the absence of a value or an unset option
     #[default]
