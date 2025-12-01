@@ -1,5 +1,6 @@
 use advent_of_utils_cli::{error::AocError, types::AocDatabase, types::AocTime, Parts};
 use std::fs::{read_dir, DirEntry};
+use std::time::Duration;
 use std::{error::Error, path::PathBuf};
 
 use crate::Cli;
@@ -16,6 +17,7 @@ pub struct RunConfig {
     pub test: bool,
     pub database: AocDatabase,
     pub workspace_dir: PathBuf,
+    pub benchmark: bool,
 }
 
 pub struct AddTestConfig {
@@ -46,6 +48,17 @@ impl RunConfig {
 
         Ok(matching_files)
     }
+
+    pub fn get_run_counts(&self, first_run_duration: Duration) -> (u32, u32) {
+        // (warmup, measurement)
+        match first_run_duration {
+            _ if !self.benchmark => (1, 1),
+            d if d < Duration::from_millis(10) => (5, 10), // Very fast: More runs needed
+            d if d < Duration::from_millis(100) => (3, 5), // Fast: Moderate runs
+            d if d < Duration::from_secs(1) => (2, 3),     // Medium: Fewer runs
+            _ => (1, 1),                                   // Slow: Single run sufficient
+        }
+    }
 }
 
 impl Config {
@@ -66,6 +79,7 @@ impl Config {
                     test: false,
                     workspace_dir: (args.workspace_dir + "/target/release").into(),
                     database: AocDatabase::new()?,
+                    benchmark: args.benchmark,
                 }))
             }
             Cli::Test(args) => {
@@ -83,6 +97,7 @@ impl Config {
                     test: true,
                     workspace_dir: (args.workspace_dir + "/target/release").into(),
                     database: AocDatabase::new()?,
+                    benchmark: args.benchmark,
                 }))
             }
             Cli::AddTest(args) => {

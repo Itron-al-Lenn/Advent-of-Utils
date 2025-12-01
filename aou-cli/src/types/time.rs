@@ -122,21 +122,39 @@ impl AocDuration {
     pub fn get_mut_time(&mut self) -> &mut Vec<Duration> {
         &mut self.duration
     }
-    pub fn avg_time(&self) -> Duration {
-        self.duration.iter().sum::<Duration>() / self.duration.len() as u32
+    pub fn duration(&self) -> &Vec<Duration> {
+        &self.duration
+    }
+    pub fn avg_time(&self) -> Option<Duration> {
+        if self.duration.is_empty() {
+            None
+        } else {
+            Some(self.duration.iter().sum::<Duration>() / self.duration.len() as u32)
+        }
     }
     pub fn additional_time(&mut self, time: &mut Vec<Duration>) {
         self.duration.append(time);
+    }
+    pub fn duration_len(&self) -> usize {
+        self.duration.len()
     }
 }
 
 impl Display for AocDuration {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self.avg_time() {
-            time if time.as_secs() > 0 => write!(f, "{:.2} s", time.as_secs_f32()),
-            time if time.as_millis() > 0 => write!(f, "{:.2} ms", time.as_micros() as f32 / 1000.0),
-            time if time.as_micros() > 0 => write!(f, "{:.2} μs", time.as_nanos() as f32 / 1000.0),
-            time => write!(f, "{} ns", time.as_nanos()),
+        if let Some(time) = self.avg_time() {
+            match time {
+                time if time.as_secs() > 0 => write!(f, "{:.2} s", time.as_secs_f32()),
+                time if time.as_millis() > 0 => {
+                    write!(f, "{:.2} ms", time.as_micros() as f32 / 1000.0)
+                }
+                time if time.as_micros() > 0 => {
+                    write!(f, "{:.2} μs", time.as_nanos() as f32 / 1000.0)
+                }
+                time => write!(f, "{} ns", time.as_nanos()),
+            }
+        } else {
+            write!(f, "None")
         }
     }
 }

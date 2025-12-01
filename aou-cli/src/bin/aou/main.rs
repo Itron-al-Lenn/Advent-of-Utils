@@ -32,6 +32,9 @@ struct RunArgs {
 
     #[arg(long, default_value = ".")]
     workspace_dir: String,
+
+    #[arg(short, long)]
+    benchmark: bool,
 }
 
 #[derive(Args)]

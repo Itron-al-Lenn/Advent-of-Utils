@@ -63,16 +63,53 @@ fn schedule_part_task(
     solver: &dyn advent_of_utils::Solution,
     config: &RunConfig,
 ) -> Result<(), AocError> {
-    let (input, time) = get_input(config.year, day, &config.database, config.test)?;
+    let (input, _) = get_input(config.year, day, &config.database, config.test)?;
 
-    let result = if part == 1 {
-        solver.part1(input)
+    let input_clone = input.clone();
+    let start = std::time::Instant::now();
+    let first_result = if part == 1 {
+        solver.part1(input_clone)
     } else {
-        solver.part2(input)
+        solver.part2(input_clone)
     };
-    let time = time.elapsed();
+    let first_duration = start.elapsed();
 
-    tasks.insert(AocResult::new(day, part, result, time));
+    let (warmup_runs, measurement_runs) = config.get_run_counts(first_duration);
+
+    if measurement_runs > 1 {
+        for _ in 0..warmup_runs {
+            let input_clone = input.clone();
+            if part == 1 {
+                solver.part1(input_clone);
+            } else {
+                solver.part2(input_clone);
+            }
+        }
+
+        let mut durations = Vec::with_capacity(measurement_runs as usize);
+        durations.push(first_duration);
+
+        for _ in 1..measurement_runs {
+            let input_clone = input.clone();
+            let start = std::time::Instant::now();
+            if part == 1 {
+                solver.part1(input_clone);
+            } else {
+                solver.part2(input_clone);
+            }
+            durations.push(start.elapsed());
+        }
+
+        tasks.insert(AocResult::new(day, part, first_result, durations));
+    } else {
+        tasks.insert(AocResult::new(
+            day,
+            part,
+            first_result,
+            vec![first_duration],
+        ));
+    }
+
     Ok(())
 }
 

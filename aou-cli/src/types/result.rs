@@ -19,12 +19,12 @@ pub struct AocResult {
 }
 
 impl AocResult {
-    pub fn new(day: u8, part: u8, result: AocOption, time: Duration) -> Self {
+    pub fn new(day: u8, part: u8, result: AocOption, time: Vec<Duration>) -> Self {
         Self {
             day,
             part: Parts::new(part).unwrap(),
             result,
-            time: AocDuration::new(vec![time]),
+            time: AocDuration::new(time),
         }
     }
 
@@ -67,6 +67,29 @@ impl AocYear {
             days,
             available_days,
         }
+    }
+    fn calculate_total_time(&self) -> AocDuration {
+        let mut total_durations = vec![];
+
+        // For each run, sum up all times
+        let max_runs = self
+            .days
+            .values()
+            .map(|r| r.time.duration_len())
+            .max()
+            .unwrap_or(0);
+
+        for i in 0..max_runs {
+            let mut total = Duration::from_secs(0);
+            for result in self.days.values() {
+                if let Some(duration) = result.time.duration().get(i) {
+                    total += *duration;
+                }
+            }
+            total_durations.push(total);
+        }
+
+        AocDuration::new(total_durations)
     }
 }
 
