@@ -8,9 +8,13 @@ use config::Config;
 use std::process;
 
 #[derive(Parser)]
+/// CLI for the Advent of Utils library
 enum Cli {
+    /// Run a certain day or a whole year against your official input
     Run(RunArgs),
+    /// Test your implementation against the by you defined test cases
     Test(RunArgs),
+    /// Add a test case to a day
     AddTest(AddArgs),
 }
 
