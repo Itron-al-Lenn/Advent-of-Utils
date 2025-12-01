@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{io, path::PathBuf};
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -27,5 +27,12 @@ pub enum DatabaseError {
         object: String,
         #[source]
         source: rusqlite::Error,
+    },
+
+    #[error("Failed creating folder for the database at {path}")]
+    DirectoryCreateFailed {
+        path: PathBuf,
+        #[source]
+        source: io::Error,
     },
 }

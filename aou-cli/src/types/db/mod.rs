@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{fs, path::PathBuf};
 
 use directories::ProjectDirs;
 use r2d2::Pool;
@@ -23,7 +23,16 @@ pub struct AocDatabase {
 
 impl AocDatabase {
     pub fn new() -> Result<Self, AocError> {
-        let path = get_data_path()?.join("aou.db");
+        let path = get_data_path()?.join("aou.db3");
+
+        if let Some(parent) = path.parent() {
+            fs::create_dir_all(parent).map_err(|error| {
+                AocError::Database(DatabaseError::DirectoryCreateFailed {
+                    path: parent.to_path_buf(),
+                    source: error,
+                })
+            })?;
+        }
 
         let manager = SqliteConnectionManager::file(&path);
         let pool = Pool::builder()
