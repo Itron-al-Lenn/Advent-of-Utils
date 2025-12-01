@@ -18,7 +18,7 @@ impl SessionToken {
             Ok(token) => Ok(Self(token)),
             Err(e) => Err(InputError::VarError {
                 key: "AOC_SESSION".to_string(),
-                reason: "Faield fetching the session token".to_string(),
+                reason: "Failed fetching the session token".to_string(),
                 source: Some(e),
             }),
         }
